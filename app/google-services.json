@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "463814706846",
+    "project_id": "kas1407",
+    "storage_bucket": "kas1407.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463814706846:android:68e7e1444b5410de475d8f",
+        "android_client_info": {
+          "package_name": "com.kas.authenticationwithfirebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "463814706846-o020r7pgq203bt4gag9tiuv9aot08852.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kas.authenticationwithfirebase",
+            "certificate_hash": "184de07fb6e862ef856fe4e2115dbdd91ab71162"
+          }
+        },
+        {
+          "client_id": "463814706846-bu4db7g4v61lmheahvvrneqqeef6lv32.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4XkkW3DsBDQYhZeIRTKRG69fidx5w398"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "463814706846-bu4db7g4v61lmheahvvrneqqeef6lv32.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
