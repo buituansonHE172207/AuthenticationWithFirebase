@@ -8,35 +8,34 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
+import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
+import com.kas.authenticationwithfirebase.utility.Resource;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class SignUpActivity extends AppCompatActivity {
 
-    private FirebaseAuth auth;
+    private AuthViewModel authViewModel;
     private EditText emailEditText;
     private EditText passwordEditText;
-    private Button signUpButton;
-    private TextView loginTextView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
         emailEditText = findViewById(R.id.signup_email);
         passwordEditText = findViewById(R.id.signup_password);
-        signUpButton = findViewById(R.id.signup_button);
-        loginTextView = findViewById(R.id.login_text);
+        Button signUpButton = findViewById(R.id.signup_button);
+        TextView loginTextView = findViewById(R.id.login_text);
 
-        auth = FirebaseAuth.getInstance();
+        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,21 +52,17 @@ public class SignUpActivity extends AppCompatActivity {
                     passwordEditText.requestFocus();
                     return;
                 }
-                auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isComplete()) {
-                            Toast.makeText(SignUpActivity.this, "User created successfully", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                        } else {
-                            Toast.makeText(SignUpActivity.this, "Signup Failed", Toast.LENGTH_SHORT).show();
-                        }
+                authViewModel.registerUser(email, password).observe(SignUpActivity.this, resource -> {
+                    if (resource.getStatus() == Resource.Status.SUCCESS) {
+                        Toast.makeText(SignUpActivity.this, "User created successfully", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                    } else {
+                        Toast.makeText(SignUpActivity.this, "Signup Failed: " + resource.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-
-
             }
         });
+
         loginTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

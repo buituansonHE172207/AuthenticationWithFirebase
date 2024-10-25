@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.main.MainActivity;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.ui.signup.SignUpActivity;
@@ -25,13 +26,13 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginButton;
     private TextView signUpTextView;
 
-    private LoginViewModel viewModel;
+    private AuthViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+        viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         emailEditText = findViewById(R.id.login_email);
         passwordEditText = findViewById(R.id.login_password);
         loginButton = findViewById(R.id.login_button);
@@ -50,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
                 passwordEditText.requestFocus();
                 return;
             }
-            viewModel.signIn(email, password).observe(this, firebaseUser -> {
+            viewModel.registerUser(email, password).observe(this, firebaseUser -> {
                 if (firebaseUser != null) {
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();

@@ -5,8 +5,10 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.kas.authenticationwithfirebase.data.model.UserProfile;
+import com.kas.authenticationwithfirebase.data.model.User;
+import com.kas.authenticationwithfirebase.utility.Resource;
 
 import javax.inject.Inject;
 
@@ -21,33 +23,37 @@ public class UserRepository {
         this.firebaseFirestore = firebaseFirestore;
     }
 
-    public void saveUserProfile(UserProfile userProfile) {
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        if (currentUser != null) {
-            firebaseFirestore.collection(USERS_COLLECTION)
-                    .document(currentUser.getUid())
-                    .set(userProfile);
-        }
+    public LiveData<Resource<User>> getUserProfile(String userId) {
+        MutableLiveData<Resource<User>> result = new MutableLiveData<>();
+
+        DocumentReference userRef = firebaseFirestore.collection("users").document(userId);
+        userRef.get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        result.setValue(Resource.success(user));
+                    } else {
+                        result.setValue(Resource.error("User not found", null));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    result.setValue(Resource.error(e.getMessage(), null));
+                });
+
+        return result;
     }
 
-    public LiveData<UserProfile> getUserProfile() {
-        MutableLiveData<UserProfile> userProfileLiveData = new MutableLiveData<>();
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        if (currentUser != null) {
-            firebaseFirestore.collection(USERS_COLLECTION)
-                    .document(currentUser.getUid())
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            UserProfile userProfile = task.getResult().toObject(UserProfile.class);
-                            userProfileLiveData.setValue(userProfile);
-                        } else {
-                            userProfileLiveData.setValue(null);
-                        }
-                    })
-                    .addOnFailureListener(e -> userProfileLiveData.setValue(null));
-        }
-        return userProfileLiveData;
+    public LiveData<Resource<Boolean>> updateUserProfile(User updatedUser) {
+        MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
+
+        String userId = firebaseAuth.getCurrentUser().getUid();
+        DocumentReference userRef = firebaseFirestore.collection(USERS_COLLECTION).document(userId);
+
+        userRef.set(updatedUser)
+                .addOnSuccessListener(aVoid -> result.setValue(Resource.success(true)))
+                .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), false)));
+
+        return result;
     }
 
 }
