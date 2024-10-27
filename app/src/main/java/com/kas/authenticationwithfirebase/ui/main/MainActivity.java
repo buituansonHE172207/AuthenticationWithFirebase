@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnLogout;
     private ChatRoomViewmodel chatRoomViewmodel;
     private RecyclerView rvChatRooms;
-    private Button btnCreateChatRoom;
+    private BottomNavigationView bottomNavigationView;
 
     private LinearLayout dropdownLayout;
     private ImageButton profileIcon;
@@ -60,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
         });
         */
-        chatRoomViewmodel.getChatRooms().observe(this, resource -> {
+        //using mock chat room
+        chatRoomViewmodel.getMockChatRooms().observe(this, resource -> {
             if (resource.getStatus() == Resource.Status.SUCCESS) {
                 chatRoomAdapter.setChatRooms(resource.getData());
             } else if (resource.getStatus() == Resource.Status.ERROR) {
@@ -74,42 +76,49 @@ public class MainActivity extends AppCompatActivity {
             Log.d("This is the chat room", chatRoom.getChatRoomId());
         });
 
-        btnCreateChatRoom = findViewById(R.id.btnStartNewChat);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        //create chat room
-        btnCreateChatRoom.setOnClickListener(v -> {
-            chatRoomViewmodel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
+        // Setup bottom navigation listener
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.new_chat) {
+                Log.d("ChatRoomRepository", "creating chat room");
+                chatRoomViewmodel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
+                return true;
+            } else if (item.getItemId() == R.id.message) {
+                return true;
+            } else if (item.getItemId() == R.id.contact) {
+                return true;
+            } else if (item.getItemId() == R.id.settings) {
+                return true;
+            }
+            return false;
         });
 
-        profileIcon.setOnClickListener(view -> {
-            showPopupMenu(view);
-        });
+        profileIcon.setOnClickListener(this::showPopupMenu);
 
     }
+
     private void showPopupMenu(View view) {
         PopupMenu popupMenu = new PopupMenu(this, view);
         popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
 
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.btnLogout) {
-                    authViewModel.logoutUser();
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    // Clear the back stack to prevent returning to MainActivity
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.btnLogout) {
+                authViewModel.logoutUser();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                // Clear the back stack to prevent returning to MainActivity
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
 
-                    // Finish MainActivity
-                    finish();
-                    return true;
-                } else if (itemId == R.id.btnSettings) {
-                    // Handle settings action, e.g., open settings activity
-                    return true;
-                }
-                return false;
+                // Finish MainActivity
+                finish();
+                return true;
+            } else if (itemId == R.id.btnSettings) {
+                // Handle settings action, e.g., open settings activity
+                return true;
             }
+            return false;
         });
 
         popupMenu.show();

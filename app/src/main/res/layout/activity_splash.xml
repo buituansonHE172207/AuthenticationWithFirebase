@@ -13,7 +13,7 @@
         android:layout_height="0dp"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
-        android:src="@drawable/rm222_mind_14__1_"
+        android:src="@drawable/rm222_mind_14green"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +27,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/message_icon2" />
+        app:srcCompat="@drawable/message_icon2"
+        app:tint="@color/primary" />
 
     <ImageView
         android:id="@+id/imageView3"

@@ -14,9 +14,9 @@
         android:title="Message" />
 
     <item
-        android:id="@+id/call"
-        android:icon="@drawable/baseline_call_24"
-        android:title="Calls" />
+        android:id="@+id/new_chat"
+        android:icon="@drawable/baseline_add_box_24"
+        android:title="New Chat" />
 
     <item
         android:id="@+id/contact"
