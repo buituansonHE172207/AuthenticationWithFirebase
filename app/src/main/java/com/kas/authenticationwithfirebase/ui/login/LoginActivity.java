@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
                 passwordEditText.requestFocus();
                 return;
             }
-            viewModel.registerUser(email, password).observe(this, firebaseUser -> {
+            viewModel.loginUser(email, password).observe(this, firebaseUser -> {
                 if (firebaseUser != null) {
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();

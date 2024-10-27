@@ -46,12 +46,38 @@ public class UserRepository {
     public LiveData<Resource<Boolean>> updateUserProfile(User updatedUser) {
         MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
 
-        String userId = firebaseAuth.getCurrentUser().getUid();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user == null) {
+            result.setValue(Resource.error("User not found", null));
+            return result;
+        }
+        String userId = user.getUid();
         DocumentReference userRef = firebaseFirestore.collection(USERS_COLLECTION).document(userId);
 
         userRef.set(updatedUser)
                 .addOnSuccessListener(aVoid -> result.setValue(Resource.success(true)))
-                .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), false)));
+                .addOnFailureListener(e ->
+                        result.setValue(Resource.error(e.getMessage(), false)));
+
+        return result;
+    }
+
+    //Update user image
+    public LiveData<Resource<String>> updateUserImage(String imageUrl) {
+        MutableLiveData<Resource<String>> result = new MutableLiveData<>();
+
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user == null) {
+            result.setValue(Resource.error("User not found", null));
+            return result;
+        }
+        String userId = user.getUid();
+        DocumentReference userRef = firebaseFirestore.collection(USERS_COLLECTION).document(userId);
+
+        userRef.update("imageUrl", imageUrl)
+                .addOnSuccessListener(aVoid -> result.setValue(Resource.success(imageUrl)))
+                .addOnFailureListener(e ->
+                        result.setValue(Resource.error(e.getMessage(), null)));
 
         return result;
     }

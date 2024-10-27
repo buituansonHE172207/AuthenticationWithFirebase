@@ -1,50 +1,73 @@
 package com.kas.authenticationwithfirebase.utility;
 
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.provider.MediaStore;
-import android.provider.Settings;
-import android.widget.Toast;
 
-import java.io.OutputStream;
+import android.app.Activity;
+import android.net.Uri;
+import android.util.Log;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class FileManager {
-    public static final int REQUEST_CODE_MANAGE_STORAGE = 4001;
-    public static Uri saveImageToMediaStore(Context context, String displayName, byte[] imageData) {
-        Uri imageUri = null;
+    private final AppCompatActivity activity;
+    private final FilePickerCallback callback;
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickMediaLauncher;
 
-        // Set up content values for the new image
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, displayName);
-        contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MyApp");
-
-        // Insert the image in the MediaStore and get its URI
-        Uri uri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-
-        if (uri != null) {
-            try (OutputStream outStream = context.getContentResolver().openOutputStream(uri)) {
-                outStream.write(imageData);
-                imageUri = uri;
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(context, "Failed to save image", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        return imageUri;
+    // Giao diện callback để truyền URI về component gọi
+    public interface FilePickerCallback {
+        void onFilePicked(Uri uri);
+        void onNoFileSelected();
     }
 
-    // Request media write permissions if necessary (Android 11+)
-    public static void requestWritePermission(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-            intent.setData(Uri.parse("package:" + activity.getPackageName()));
-            activity.startActivityForResult(intent, REQUEST_CODE_MANAGE_STORAGE);
-        }
+    // Khởi tạo FileManager với callback
+    public FileManager(AppCompatActivity activity, FilePickerCallback callback) {
+        this.activity = activity;
+        this.callback = callback;
+        this.pickMediaLauncher = initFilePicker();
+    }
+
+    // Phương thức khởi tạo ActivityResultLauncher
+    private ActivityResultLauncher<PickVisualMediaRequest> initFilePicker() {
+        return activity.registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+            if (uri != null) {
+                Log.d("FileManager", "Selected URI: " + uri);
+                callback.onFilePicked(uri);
+            } else {
+                Log.d("FileManager", "No media selected");
+                callback.onNoFileSelected();
+            }
+        });
+    }
+
+    // Phương thức chọn ảnh và video
+    public void pickImageAndVideo() {
+        pickMediaLauncher.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(PickVisualMedia.ImageAndVideo.INSTANCE)
+                .build());
+    }
+
+    // Phương thức chọn chỉ ảnh
+    public void pickImageOnly() {
+        pickMediaLauncher.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(PickVisualMedia.ImageOnly.INSTANCE)
+                .build());
+    }
+
+    // Phương thức chọn chỉ video
+    public void pickVideoOnly() {
+        pickMediaLauncher.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(PickVisualMedia.VideoOnly.INSTANCE)
+                .build());
+    }
+
+    // Phương thức chọn MIME type cụ thể
+    public void pickSpecificMimeType(String mimeType) {
+        pickMediaLauncher.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(new PickVisualMedia.SingleMimeType(mimeType))
+                .build());
     }
 }
+

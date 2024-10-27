@@ -15,7 +15,7 @@ public class ChatRoom {
         this.userIds = userIds;
         this.createdAt = createdAt;
         this.lastMessage = lastMessage;
-        this.lastMessageTimestamp = lastMessageTimestamp;
+        this.lastMessageTimestamp = lastMessageTimestamp > 0 ? lastMessageTimestamp : System.currentTimeMillis();
         this.isGroupChat = isGroupChat;
     }
 

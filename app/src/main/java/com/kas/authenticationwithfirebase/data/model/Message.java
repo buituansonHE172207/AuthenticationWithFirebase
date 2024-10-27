@@ -16,11 +16,12 @@ public class Message {
         this.chatRoomId = chatRoomId;
         this.messageContent = messageContent;
         this.messageType = messageType;
-        this.timestamp = timestamp;
+        this.timestamp = timestamp > 0 ? timestamp : System.currentTimeMillis();
         this.readBy = readBy;
     }
 
     public Message() {
+        timestamp = System.currentTimeMillis();
     }
 
     public String getMessageId() {

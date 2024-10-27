@@ -42,6 +42,6 @@ public class FirebaseModule {
     @Singleton
     // Provide realtime database instance
     public FirebaseDatabase provideFirebaseDatabase() {
-        return FirebaseDatabase.getInstance();
+        return FirebaseDatabase.getInstance("https://kas1407-default-rtdb.asia-southeast1.firebasedatabase.app");
     }
 }
