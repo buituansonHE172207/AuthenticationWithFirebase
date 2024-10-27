@@ -26,7 +26,7 @@ public class ChatRoomViewmodel extends ViewModel {
     }
 
     private String getCurrentUserId() {
-        return authRepository.getCurrentUser().getProviderId();
+        return authRepository.getCurrentUser().getUid();
     }
 
     public LiveData<Resource<List<ChatRoom>>> getChatRooms() {
