@@ -1,6 +1,7 @@
 package com.kas.authenticationwithfirebase.ui.chatRoom;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.kas.authenticationwithfirebase.data.model.ChatRoom;
@@ -18,7 +19,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class ChatRoomViewmodel extends ViewModel {
     private final ChatRoomRepository chatRoomRepository;
     private final AuthRepository authRepository;
-
     @Inject
     public ChatRoomViewmodel(ChatRoomRepository chatRoomRepository, AuthRepository authRepository) {
         this.chatRoomRepository = chatRoomRepository;
@@ -44,7 +44,6 @@ public class ChatRoomViewmodel extends ViewModel {
     public LiveData<Resource<Boolean>> updateLastMessage(String chatRoomId, String lastMessage, Long lastMessageTimestamp) {
         return chatRoomRepository.updateLastMessage(chatRoomId, lastMessage, lastMessageTimestamp);
     }
-
     @Override
     protected void onCleared() {
         super.onCleared();

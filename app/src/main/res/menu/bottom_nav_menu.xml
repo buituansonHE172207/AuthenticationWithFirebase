@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/menu"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent">
+    <item
+        android:id="@+id/message"
+        android:icon="@drawable/message_icon"
+        android:title="Message" />
+
+    <item
+        android:id="@+id/call"
+        android:icon="@drawable/baseline_call_24"
+        android:title="Calls" />
+
+    <item
+        android:id="@+id/contact"
+        android:icon="@drawable/baseline_account_circle_24"
+        android:title="Contacts" />
+
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/baseline_build_24"
+        android:title="Settings" />
+</menu>
