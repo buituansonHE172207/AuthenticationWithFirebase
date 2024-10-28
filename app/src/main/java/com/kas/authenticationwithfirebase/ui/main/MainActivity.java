@@ -22,6 +22,7 @@ import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewmodel;
 import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
+import com.kas.authenticationwithfirebase.ui.settings.SettingsActivity;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -116,6 +117,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.btnSettings) {
                 // Handle settings action, e.g., open settings activity
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+
                 return true;
             }
             return false;
