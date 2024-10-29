@@ -36,7 +36,7 @@ public class ChatRoomViewModel extends ViewModel {
     }
 
     public LiveData<Resource<List<ChatRoom>>> getChatRooms() {
-        return checkUserLoggedIn(chatRoomRepository.observeUserChatRooms(currentUserId));
+        return chatRoomRepository.observeUserChatRooms(currentUserId);
     }
 
     public LiveData<Resource<ChatRoom>> createChatRoom(String userId) {
@@ -56,4 +56,8 @@ public class ChatRoomViewModel extends ViewModel {
         super.onCleared();
         chatRoomRepository.removeChatRoomsListener();
     }
+
+
+
+
 }
