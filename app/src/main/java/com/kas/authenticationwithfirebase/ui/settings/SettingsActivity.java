@@ -26,14 +26,14 @@ public class SettingsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("");
         }
         // Set up click listeners for each settings option
-//        findViewById(R.id.link_appearance).setOnClickListener(view -> openAppearanceSettings());
+        findViewById(R.id.link_appearance).setOnClickListener(view -> openAppearanceSettings());
 //        findViewById(R.id.link_notification).setOnClickListener(view -> openNotificationSettings());
 //        findViewById(R.id.link_privacy).setOnClickListener(view -> openPrivacySettings());
     }
 
-//        private void openAppearanceSettings() {
-//        startActivity(new Intent(SettingsActivity.this, AppearanceActivity.class));
-//    }
+        private void openAppearanceSettings() {
+        startActivity(new Intent(SettingsActivity.this, AppearanceActivity.class));
+    }
 //
 //    private void openNotificationSettings() {
 //        startActivity(new Intent(this, NotificationActivity.class));
