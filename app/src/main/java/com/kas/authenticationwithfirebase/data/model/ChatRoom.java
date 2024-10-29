@@ -4,18 +4,20 @@ import java.util.List;
 
 public class ChatRoom {
     private String chatRoomId;
+    private String chatRoomName;
     private List<String> userIds;
     private Long createdAt;
     private String lastMessage;
     private Long lastMessageTimestamp;
     private boolean isGroupChat;
 
-    public ChatRoom(String chatRoomId, List<String> userIds, Long createdAt, String lastMessage, Long lastMessageTimestamp, boolean isGroupChat) {
+    public ChatRoom(String chatRoomId, String chatRoomName, List<String> userIds, Long createdAt, String lastMessage, Long lastMessageTimestamp, boolean isGroupChat) {
         this.chatRoomId = chatRoomId;
+        this.chatRoomName = chatRoomName;
         this.userIds = userIds;
         this.createdAt = createdAt;
         this.lastMessage = lastMessage;
-        this.lastMessageTimestamp = lastMessageTimestamp > 0 ? lastMessageTimestamp : System.currentTimeMillis();
+        this.lastMessageTimestamp = lastMessageTimestamp;
         this.isGroupChat = isGroupChat;
     }
 
@@ -68,5 +70,13 @@ public class ChatRoom {
 
     public void setGroupChat(boolean groupChat) {
         isGroupChat = groupChat;
+    }
+
+    public String getChatRoomName() {
+        return chatRoomName;
+    }
+
+    public void setChatRoomName(String chatRoomName) {
+        this.chatRoomName = chatRoomName;
     }
 }

@@ -3,7 +3,6 @@ package com.kas.authenticationwithfirebase.ui.main;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -11,7 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,7 +18,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
-import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewmodel;
+import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewModel;
 import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
 import com.kas.authenticationwithfirebase.ui.settings.SettingsActivity;
 import com.kas.authenticationwithfirebase.utility.Resource;
@@ -31,7 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class MainActivity extends AppCompatActivity {
 
     private Button btnLogout;
-    private ChatRoomViewmodel chatRoomViewmodel;
+    private ChatRoomViewModel chatRoomViewmodel;
     private RecyclerView rvChatRooms;
     private BottomNavigationView bottomNavigationView;
 
@@ -47,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         //btnLogout = findViewById(R.id.btnLogout);
         rvChatRooms = findViewById(R.id.rvChatRooms);
         profileIcon = findViewById(R.id.profile_icon);
-        chatRoomViewmodel = new ViewModelProvider(this).get(ChatRoomViewmodel.class);
+        chatRoomViewmodel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         ChatRoomAdapter chatRoomAdapter = new ChatRoomAdapter();
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         });
         */
         //using mock chat room
-        chatRoomViewmodel.getMockChatRooms().observe(this, resource -> {
+        chatRoomViewmodel.getChatRooms().observe(this, resource -> {
             if (resource.getStatus() == Resource.Status.SUCCESS) {
                 chatRoomAdapter.setChatRooms(resource.getData());
             } else if (resource.getStatus() == Resource.Status.ERROR) {

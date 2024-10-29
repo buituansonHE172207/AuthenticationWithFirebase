@@ -40,7 +40,13 @@
         android:theme="@style/Theme.AuthenticationWithFirebase"
         tools:targetApi="31">
         <activity
+
             android:name=".ui.settings.SettingsActivity"
+
+            android:name=".ui.userProfile.UserProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.forgotPassword.ForgotPasswordActivity"
             android:exported="false" /> <!-- <service android:name="com.google.android.gms.metadata.ModuleDependencies" -->
         <!-- android:enabled="false" -->
         <!-- android:exported="false" -->

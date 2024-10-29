@@ -42,10 +42,7 @@ public class AuthViewModel extends ViewModel {
         return authRepository.resetPassword(email);
     }
 
-    // Get Current User
-    public FirebaseUser getCurrentUser() {
-        return authRepository.getCurrentUser();
-    }
+
 
     // Is User Logged In
     public boolean isUserLoggedIn() {
