@@ -65,7 +65,14 @@ public class ChatRoomRepository {
 
     private void createNewChatRoom(String userId1, String userId2, MutableLiveData<Resource<ChatRoom>> result) {
         String chatRoomId = chatRoomsRef.push().getKey();
-        ChatRoom newChatRoom = new ChatRoom(chatRoomId, new ArrayList<>(Arrays.asList(userId1, userId2)), System.currentTimeMillis(), "", 0L, false);
+        ChatRoom newChatRoom = new ChatRoom(
+                chatRoomId,
+                chatRoomId,
+                new ArrayList<>(Arrays.asList(userId1, userId2)),
+                System.currentTimeMillis(),
+                "",
+                0L,
+                false);
 
         if (chatRoomId == null) {
             result.setValue(Resource.error("Failed to create chat room", null));
@@ -88,7 +95,14 @@ public class ChatRoomRepository {
         result.setValue(Resource.loading(null));
 
         String chatRoomId = chatRoomsRef.push().getKey();
-        ChatRoom newChatRoom = new ChatRoom(chatRoomId, new ArrayList<>(userIds), System.currentTimeMillis(), "", 0L, true);
+        ChatRoom newChatRoom = new ChatRoom(
+                chatRoomId,
+                "Group: " + chatRoomId,
+                new ArrayList<>(userIds),
+                System.currentTimeMillis(),
+                "",
+                0L,
+                true);
 
         if (chatRoomId == null) {
             result.setValue(Resource.error("Failed to create chat room id", null));

@@ -18,6 +18,7 @@ import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.main.MainActivity;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.ui.signup.SignUpActivity;
+import com.kas.authenticationwithfirebase.utility.Resource;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -72,12 +73,12 @@ public class LoginActivity extends AppCompatActivity {
                 passwordEditText.requestFocus();
                 return;
             }
-            viewModel.loginUser(email, password).observe(this, firebaseUser -> {
-                if (firebaseUser != null) {
+            viewModel.loginUser(email, password).observe(this, resource -> {
+                if (resource.getStatus() == Resource.Status.SUCCESS) {
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
-                } else {
-                    Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                } else if (resource.getStatus() == Resource.Status.ERROR) {
+                    Toast.makeText(LoginActivity.this, resource.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         });
