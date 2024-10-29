@@ -119,9 +119,10 @@ public class AuthRepository {
         return result;
     }
 
-    // Get currently signed-in user
-    public FirebaseUser getCurrentUser() {
-        return firebaseAuth.getCurrentUser();
+    // Get currently signed-in user Id
+    public String getCurrentUserId() {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        return user != null ? user.getUid() : null;
     }
 
     public boolean isUserLoggedIn() {

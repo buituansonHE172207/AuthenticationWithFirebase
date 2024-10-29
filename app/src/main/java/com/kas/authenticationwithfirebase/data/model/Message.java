@@ -6,14 +6,16 @@ import java.util.List;
 public class Message {
     private String messageId;
     private String chatRoomId;
+    private String senderId;
     private String messageContent;
     private String messageType;
     private long timestamp;
     private List<String> readBy;
 
-    public Message(String messageId, String chatRoomId, String messageContent, String messageType, long timestamp, List<String> readBy) {
+    public Message(String messageId, String chatRoomId, String senderId, String messageContent, String messageType, long timestamp, List<String> readBy) {
         this.messageId = messageId;
         this.chatRoomId = chatRoomId;
+        this.senderId = senderId;
         this.messageContent = messageContent;
         this.messageType = messageType;
         this.timestamp = timestamp > 0 ? timestamp : System.currentTimeMillis();
@@ -70,5 +72,13 @@ public class Message {
 
     public void setReadBy(List<String> readBy) {
         this.readBy = readBy;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
 }

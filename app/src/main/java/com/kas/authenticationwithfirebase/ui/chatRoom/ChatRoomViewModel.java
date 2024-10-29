@@ -1,6 +1,7 @@
 package com.kas.authenticationwithfirebase.ui.chatRoom;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.kas.authenticationwithfirebase.data.model.ChatRoom;
@@ -15,26 +16,31 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
-public class ChatRoomViewmodel extends ViewModel {
+public class ChatRoomViewModel extends ViewModel {
     private final ChatRoomRepository chatRoomRepository;
-    private final AuthRepository authRepository;
+    private final String currentUserId;
 
     @Inject
-    public ChatRoomViewmodel(ChatRoomRepository chatRoomRepository, AuthRepository authRepository) {
+    public ChatRoomViewModel(ChatRoomRepository chatRoomRepository, AuthRepository authRepository) {
         this.chatRoomRepository = chatRoomRepository;
-        this.authRepository = authRepository;
+        this.currentUserId = authRepository.getCurrentUserId();
     }
 
-    private String getCurrentUserId() {
-        return authRepository.getCurrentUser().getUid();
+    private <T> LiveData<Resource<T>> checkUserLoggedIn(LiveData<Resource<T>> successLiveData) {
+        if (currentUserId == null) {
+            MutableLiveData<Resource<T>> errorResult = new MutableLiveData<>();
+            errorResult.setValue(Resource.error("User not logged in", null));
+            return errorResult;
+        }
+        return successLiveData;
     }
 
     public LiveData<Resource<List<ChatRoom>>> getChatRooms() {
-        return chatRoomRepository.observeUserChatRooms(getCurrentUserId());
+        return checkUserLoggedIn(chatRoomRepository.observeUserChatRooms(currentUserId));
     }
 
     public LiveData<Resource<ChatRoom>> createChatRoom(String userId) {
-        return chatRoomRepository.startNewChat(userId, getCurrentUserId());
+        return checkUserLoggedIn(chatRoomRepository.startNewChat(userId, currentUserId));
     }
 
     public LiveData<Resource<ChatRoom>> createGroupChatRoom(List<String> userId) {
@@ -50,6 +56,4 @@ public class ChatRoomViewmodel extends ViewModel {
         super.onCleared();
         chatRoomRepository.removeChatRoomsListener();
     }
-
-
 }

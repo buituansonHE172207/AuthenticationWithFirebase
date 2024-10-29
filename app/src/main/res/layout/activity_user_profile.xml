@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
+    tools:context=".ui.userProfile.UserProfileActivity">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center_horizontal"
+            android:padding="24dp"
+            android:background="@drawable/custom_edit_text">
+
+            <ImageView
+                android:id="@+id/profile_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/profile_image"
+                android:src="@drawable/ic_user_placeholder"
+                android:layout_marginBottom="20dp" />
+
+            <EditText
+                android:id="@+id/username_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/custom_edit_text"
+                android:padding="8dp"
+                android:hint="Username"
+                android:drawableLeft="@drawable/person_icon"
+                android:textColor="@color/black"
+                android:layout_marginBottom="20dp" />
+
+            <EditText
+                android:id="@+id/status_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/custom_edit_text"
+                android:padding="8dp"
+                android:hint="Status"
+                android:drawableLeft="@drawable/status_icon"
+                android:textColor="@color/black"
+                android:layout_marginBottom="20dp" />
+
+            <Button
+                android:id="@+id/update_profile_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Update Profile"
+                android:textSize="18sp"
+                android:background="@drawable/custom_button" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

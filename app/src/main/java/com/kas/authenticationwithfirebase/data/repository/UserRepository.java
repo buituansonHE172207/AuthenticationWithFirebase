@@ -82,4 +82,22 @@ public class UserRepository {
         return result;
     }
 
+    public LiveData<Resource<Boolean>> updateUserStatus(String status) {
+        MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
+
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user == null) {
+            result.setValue(Resource.error("User not found", null));
+            return result;
+        }
+        String userId = user.getUid();
+        DocumentReference userRef = firebaseFirestore.collection(USERS_COLLECTION).document(userId);
+
+        userRef.update("status", status)
+                .addOnSuccessListener(aVoid -> result.setValue(Resource.success(true)))
+                .addOnFailureListener(e ->
+                        result.setValue(Resource.error(e.getMessage(), false)));
+
+        return result;
+    }
 }
