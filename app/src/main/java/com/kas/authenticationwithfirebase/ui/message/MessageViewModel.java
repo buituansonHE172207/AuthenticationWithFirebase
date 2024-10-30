@@ -1,5 +1,7 @@
 package com.kas.authenticationwithfirebase.ui.message;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -44,10 +46,31 @@ public class MessageViewModel extends ViewModel {
         if (messages == null) {
             messages = new MutableLiveData<>();
             messages.setValue(Resource.loading(null));
-            messages = (MutableLiveData<Resource<List<Message>>>) messageRepository.observeMessages(chatRoomId);
+
+            // Observe messages from the repository
+            LiveData<Resource<List<Message>>> observedMessages = messageRepository.observeMessages(chatRoomId);
+
+            observedMessages.observeForever(resource -> {
+                if (resource.getData() != null) {
+                    // Mark each unread message as read
+                    for (Message message : resource.getData()) {
+                        List<String> readBy = message.getReadBy();
+                        if (readBy != null) {
+                            Log.d("countUnreadMessages", "Read by: " + readBy.toString());
+                            if (!readBy.contains(currentUserId)) {
+                                Log.d("countUnreadMessages", "set readby" + message.getMessageId());
+                                markMessageAsRead(chatRoomId, message.getMessageId());
+                            }
+                        }
+                    }
+                    // Update the live data with the observed resource
+                    messages.setValue(resource);
+                }
+            });
         }
-        return messages;
+        return messages; // Move the return statement outside the if block
     }
+
 
     // Send a new message
     public LiveData<Resource<Message>> sendMessage(String chatRoomId, Message message) {

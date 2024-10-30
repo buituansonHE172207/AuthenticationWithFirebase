@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
+import com.kas.authenticationwithfirebase.data.model.ChatRoom;
 import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewModel;
@@ -52,6 +53,14 @@ public class MainActivity extends AppCompatActivity {
         chatRoomViewModel.getChatRooms().observe(this, resource -> {
             if (resource.getStatus() == Resource.Status.SUCCESS) {
                 chatRoomAdapter.setChatRooms(resource.getData());
+                // Observe unread message count for each chat room
+                for (ChatRoom chatRoom : resource.getData()) {
+                    chatRoomViewModel.getUnreadMessagesCount(chatRoom.getChatRoomId()).observe(this, unreadResource -> {
+                        if (unreadResource.getStatus() == Resource.Status.SUCCESS) {
+                            chatRoomAdapter.updateUnreadCount(chatRoom.getChatRoomId(), unreadResource.getData());
+                        }
+                    });
+                }
             } else if (resource.getStatus() == Resource.Status.ERROR) {
                 // Handle error
             } else if (resource.getStatus() == Resource.Status.LOADING) {

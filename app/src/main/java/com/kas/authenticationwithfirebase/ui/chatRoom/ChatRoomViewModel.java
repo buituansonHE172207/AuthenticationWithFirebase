@@ -46,7 +46,11 @@ public class ChatRoomViewModel extends ViewModel {
     public LiveData<Resource<ChatRoom>> createGroupChatRoom(List<String> userId) {
         return chatRoomRepository.startNewGroupChat(userId);
     }
-
+    public LiveData<Resource<Integer>> getUnreadMessagesCount(String chatRoomId) {
+        return checkUserLoggedIn(
+                chatRoomRepository.countUnreadMessages(chatRoomId, currentUserId)
+        );
+    }
 
     @Override
     protected void onCleared() {

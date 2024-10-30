@@ -14,14 +14,16 @@ import com.kas.authenticationwithfirebase.data.model.ChatRoom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRoomViewHolder> {
 
     private final List<ChatRoom> chatRooms = new ArrayList<>();
     private OnChatRoomClickListener listener;
-
+    private final Map<String, Integer> unreadCounts = new HashMap<>();
     public interface OnChatRoomClickListener {
         void onChatRoomClick(ChatRoom chatRoom);
     }
@@ -35,6 +37,15 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         this.chatRooms.addAll(chatRooms);
         notifyDataSetChanged();
     }
+    public void updateUnreadCount(String chatRoomId, int count) {
+        unreadCounts.put(chatRoomId, count);
+        for (int i = 0; i < chatRooms.size(); i++) {
+            if (chatRooms.get(i).getChatRoomId().equals(chatRoomId)) {
+                notifyItemChanged(i, count);
+                break;
+            }
+        }
+    }
 
     @NonNull
     @Override
@@ -46,7 +57,8 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
     @Override
     public void onBindViewHolder(@NonNull ChatRoomViewHolder holder, int position) {
         ChatRoom chatRoom = chatRooms.get(position);
-        holder.bind(chatRoom);
+        Integer unreadCount = unreadCounts.get(chatRoom.getChatRoomId());
+        holder.bind(chatRoom, unreadCount != null ? unreadCount : 0);
     }
 
     @Override
@@ -58,12 +70,14 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         private final TextView chatRoomName;
         private final TextView lastMessage;
         private final TextView lastMessageTimestamp;
+        private final TextView unreadCount;
 
         ChatRoomViewHolder(@NonNull View itemView) {
             super(itemView);
             chatRoomName = itemView.findViewById(R.id.chatRoomName);
             lastMessage = itemView.findViewById(R.id.lastMessage);
             lastMessageTimestamp = itemView.findViewById(R.id.lastMessageTimestamp);
+            unreadCount = itemView.findViewById(R.id.unreadCount);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
@@ -72,7 +86,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
             });
         }
 
-        void bind(ChatRoom chatRoom) {
+        void bind(ChatRoom chatRoom,int count) {
             String chatRoomNameText = chatRoom.isGroupChat() ? "Group Chat" : "Chat";
             chatRoomNameText = chatRoomNameText + chatRoom.getChatRoomName();
             chatRoomName.setText(chatRoomNameText);
@@ -84,6 +98,12 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
                 lastMessageTimestamp.setText(dateString);
             } else {
                 lastMessageTimestamp.setText("");
+            }
+            if (count > 0) {
+                unreadCount.setText(String.valueOf(count));
+                unreadCount.setVisibility(View.VISIBLE);
+            } else {
+                unreadCount.setVisibility(View.GONE);
             }
         }
     }
