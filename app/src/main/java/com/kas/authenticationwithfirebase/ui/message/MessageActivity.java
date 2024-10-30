@@ -57,13 +57,16 @@ public class MessageActivity extends AppCompatActivity {
                 messages.clear();
                 messages.addAll(resource.getData());
                 messageAdapter.notifyDataSetChanged();
-                recyclerView.smoothScrollToPosition(messages.size() - 1); // Scroll to last message
+                if (!messages.isEmpty()) {
+                    // Scroll to the last message
+                    recyclerView.smoothScrollToPosition(messages.size() - 1);
+                }
             }
         };
 
         // Send Message
         sendButton.setOnClickListener(v -> {
-            String messageContent = messageInput.getText().toString().trim();
+            String messageContent = messageInput.getText().toString();
             if (!messageContent.isEmpty()) {
                 Message message = new Message(
                         null,

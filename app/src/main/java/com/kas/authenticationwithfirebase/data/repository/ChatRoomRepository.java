@@ -5,12 +5,17 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kas.authenticationwithfirebase.data.model.ChatRoom;
 import com.kas.authenticationwithfirebase.data.model.Message;
 import com.kas.authenticationwithfirebase.utility.Resource;
@@ -28,20 +33,21 @@ public class ChatRoomRepository {
     private final DatabaseReference messagesRef;
 
     private ValueEventListener chatRoomsListener;
+    private final CollectionReference usersRef;
 
     @Inject
-    public ChatRoomRepository(FirebaseDatabase firebaseDatabase, FirebaseAuth firebaseAuth) {
-
+    public ChatRoomRepository(FirebaseDatabase firebaseDatabase, FirebaseFirestore firebaseFirestore) {
         this.chatRoomsRef = firebaseDatabase.getReference("chatRooms");
         this.messagesRef = firebaseDatabase.getReference("messages");
 
+        this.usersRef = firebaseFirestore.collection("users");
     }
 
     public LiveData<Resource<ChatRoom>> startNewChat(String userId1, String userId2) {
         MutableLiveData<Resource<ChatRoom>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(null));
 
-        // Kiểm tra nếu đã có phòng chat chứa cả userId1 và userId2
+        // Check if chat room already exists
         chatRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -69,30 +75,52 @@ public class ChatRoomRepository {
 
     private void createNewChatRoom(String userId1, String userId2, MutableLiveData<Resource<ChatRoom>> result) {
         String chatRoomId = chatRoomsRef.push().getKey();
-        ChatRoom newChatRoom = new ChatRoom(
-                chatRoomId,
-                chatRoomId,
-                new ArrayList<>(Arrays.asList(userId1, userId2)),
-                System.currentTimeMillis(),
-                "",
-                0L,
-                false);
-
         if (chatRoomId == null) {
-            result.setValue(Resource.error("Failed to create chat room", null));
+            result.setValue(Resource.error("Failed to create chat room ID", null));
             return;
         }
 
-        chatRoomsRef.child(chatRoomId).setValue(newChatRoom)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("ChatRoomRepository", "Chat room created successfully: " + chatRoomId);
-                    result.setValue(Resource.success(newChatRoom));
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("ChatRoomRepository", "Failed to create chat room: " + e.getMessage());
-                    result.setValue(Resource.error(e.getMessage(), null));
-                });
+        Task<DocumentSnapshot> user1Task = usersRef.document(userId1).get();
+        Task<DocumentSnapshot> user2Task = usersRef.document(userId2).get();
+
+        Tasks.whenAllSuccess(user1Task, user2Task).addOnSuccessListener(results -> {
+            String userName1 = user1Task.getResult().getString("username");
+            String userName2 = user2Task.getResult().getString("username");
+
+            if (userName1 == null || userName2 == null) {
+                result.setValue(Resource.error("Failed to fetch user names", null));
+                return;
+            }
+
+            String chatRoomName = userName1 + " & " + userName2;
+
+            ChatRoom newChatRoom = new ChatRoom(
+                    chatRoomId,
+                    chatRoomName,
+                    new ArrayList<>(Arrays.asList(userId1, userId2)),
+                    System.currentTimeMillis(),
+                    "",
+                    0L,
+                    false);
+
+            // Add the chat room to the database
+            chatRoomsRef.child(chatRoomId).setValue(newChatRoom)
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("ChatRoomRepository", "Chat room created successfully: " + chatRoomId);
+                        result.setValue(Resource.success(newChatRoom));
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("ChatRoomRepository", "Failed to create chat room: " + e.getMessage());
+                        result.setValue(Resource.error(e.getMessage(), null));
+                    });
+
+        }).addOnFailureListener(e -> {
+            Log.e("ChatRoomRepository", "Failed to fetch user data: " + e.getMessage());
+            result.setValue(Resource.error("Failed to fetch user data", null));
+        });
     }
+
+
 
     public LiveData<Resource<ChatRoom>> startNewGroupChat(List<String> userIds) {
         MutableLiveData<Resource<ChatRoom>> result = new MutableLiveData<>();

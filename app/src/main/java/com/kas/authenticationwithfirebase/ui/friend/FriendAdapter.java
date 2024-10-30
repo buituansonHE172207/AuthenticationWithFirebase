@@ -20,6 +20,10 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
     private List<User> friendList;
     private OnFriendClickListener onFriendClickListener;
 
+    public void setOnFriendClickListener(OnFriendClickListener onFriendClickListener) {
+        this.onFriendClickListener = onFriendClickListener;
+    }
+
     @NonNull
     @Override
     public FriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

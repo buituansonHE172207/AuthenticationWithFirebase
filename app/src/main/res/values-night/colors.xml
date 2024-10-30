@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="text_color">#FF000000</color>s
+    <color name="text_color">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="purple_250">#FFBA68C8</color>
@@ -11,9 +11,8 @@
     <color name="lavender">#FFB39DDB</color>
     <color name="primary">#007A64</color>
     <color name="bottom_nav_color">#FFFFFFFF</color>
-    <color name="background">#FFFFFFFF</color>
+    <color name="background">#373434</color>
     <color name="top_nav_color">#FF000000</color>
     <color name="menu_item_gray">#9E9E9E</color>
     <color name="disabled_button">#EBEBEB</color>
-    <color name="warning">#FF0000</color>
 </resources>
