@@ -4,8 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.kas.authenticationwithfirebase.data.model.ChatRoom;
 import com.kas.authenticationwithfirebase.data.model.User;
 import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
+import com.kas.authenticationwithfirebase.data.repository.ChatRoomRepository;
 import com.kas.authenticationwithfirebase.data.repository.FriendRepository;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
@@ -19,11 +21,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class FriendViewModel extends ViewModel {
     private final FriendRepository friendRepository;
     private final String currentUserId;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Inject
-    public FriendViewModel(FriendRepository friendRepository, AuthRepository authRepository) {
+    public FriendViewModel(FriendRepository friendRepository, AuthRepository authRepository, ChatRoomRepository chatRoomRepository) {
         this.friendRepository = friendRepository;
         this.currentUserId = authRepository.getCurrentUserId();
+        this.chatRoomRepository = chatRoomRepository;
     }
 
     private <T> LiveData<Resource<T>> checkUserLoggedIn(LiveData<Resource<T>> successLiveData) {
@@ -59,5 +63,12 @@ public class FriendViewModel extends ViewModel {
     // Search for friends by username or email
     public LiveData<Resource<List<User>>> searchFriends(String query) {
         return friendRepository.searchFriends(query);
+    }
+
+    // Create a chat room with a friend
+    public LiveData<Resource<ChatRoom>> createChatRoom(String friendUserId) {
+        return checkUserLoggedIn(
+                chatRoomRepository.startNewChat(friendUserId, currentUserId)
+        );
     }
 }

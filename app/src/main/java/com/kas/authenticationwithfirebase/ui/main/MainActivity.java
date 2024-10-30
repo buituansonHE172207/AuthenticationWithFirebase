@@ -16,6 +16,7 @@ import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewModel;
+import com.kas.authenticationwithfirebase.ui.friend.FriendActivity;
 import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
 import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
 import com.kas.authenticationwithfirebase.ui.settings.SettingsActivity;
@@ -74,7 +75,15 @@ public class MainActivity extends AppCompatActivity {
             if (item.getItemId() == R.id.new_chat) {
                 chatRoomViewModel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
                 return true;
-            } else if (item.getItemId() == R.id.message || item.getItemId() == R.id.contact || item.getItemId() == R.id.settings) {
+            } else if (item.getItemId() == R.id.message ) {
+                return true;
+            } else if (item.getItemId() == R.id.contact) {
+                // Open friends activity
+                Intent intent = new Intent(MainActivity.this, FriendActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (item.getItemId() == R.id.settings) {
+                // Handle settings action, e.g., open settings activity
                 return true;
             }
             return false;

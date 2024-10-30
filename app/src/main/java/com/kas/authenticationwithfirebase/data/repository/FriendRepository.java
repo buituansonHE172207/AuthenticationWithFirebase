@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.kas.authenticationwithfirebase.data.model.Friend;
 import com.kas.authenticationwithfirebase.data.model.User;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
@@ -38,9 +39,9 @@ public class FriendRepository {
                 .document(friendUserId)
                 .collection(FRIENDS_SUB_COLLECTION);
 
-        currentUserFriendsRef.document(friendUserId).set(new Object())
+        currentUserFriendsRef.document(friendUserId).set(new Friend())
                 .addOnSuccessListener(aVoid -> {
-                    friendFriendsRef.document(currentUserId).set(new Object())
+                    friendFriendsRef.document(currentUserId).set(new Friend(friendUserId))
                             .addOnSuccessListener(aVoid1 -> result.setValue(Resource.success(true)))
                             .addOnFailureListener(e -> result.setValue(Resource.error("Failed to add friend on friendUser side: " + e.getMessage(), false)));
                 })
