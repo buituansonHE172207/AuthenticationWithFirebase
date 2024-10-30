@@ -157,6 +157,7 @@ public class ChatRoomRepository {
     public LiveData<Resource<List<ChatRoom>>> observeUserChatRooms(String userId) {
         MutableLiveData<Resource<List<ChatRoom>>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(null));
+
         removeChatRoomsListener();
         chatRoomsListener = chatRoomsRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -165,6 +166,10 @@ public class ChatRoomRepository {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     ChatRoom chatRoom = dataSnapshot.getValue(ChatRoom.class);
                     if (chatRoom != null && chatRoom.getUserIds().contains(userId)) {
+                        Integer unreadCount = dataSnapshot.child("unreadCounts").child(userId).getValue(Integer.class);
+                        if (chatRoom.getUnreadCounts() == null)
+                            chatRoom.setUnreadCounts(new HashMap<>());
+                        chatRoom.getUnreadCounts().putIfAbsent(userId, unreadCount != null ? unreadCount : 0);
                         userChatRooms.add(chatRoom);
                     }
                 }
@@ -179,6 +184,7 @@ public class ChatRoomRepository {
 
         return result;
     }
+
 
     public void removeChatRoomsListener() {
         if (chatRoomsListener != null) {

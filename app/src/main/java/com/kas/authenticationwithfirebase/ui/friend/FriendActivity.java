@@ -75,6 +75,7 @@ public class FriendActivity extends AppCompatActivity {
             friendViewModel.addFriend(friend.getUserId()).observe(this, resource -> {
                 if (resource.getStatus() == Resource.Status.SUCCESS) {
                     // Show success message
+                    friendViewModel.getFriendsList();
                 } else if (resource.getStatus() == Resource.Status.ERROR) {
                     // Show error message
                 } else if (resource.getStatus() == Resource.Status.LOADING) {

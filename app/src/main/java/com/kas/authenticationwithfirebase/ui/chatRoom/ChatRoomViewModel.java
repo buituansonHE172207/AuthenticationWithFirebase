@@ -21,11 +21,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class ChatRoomViewModel extends ViewModel {
     private final ChatRoomRepository chatRoomRepository;
     private final String currentUserId;
+    private final UserRepository userRepository;
 
     @Inject
-    public ChatRoomViewModel(ChatRoomRepository chatRoomRepository, AuthRepository authRepository) {
+    public ChatRoomViewModel(ChatRoomRepository chatRoomRepository, AuthRepository authRepository, UserRepository userRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.currentUserId = authRepository.getCurrentUserId();
+        this.userRepository = userRepository;
     }
 
     private <T> LiveData<Resource<T>> checkUserLoggedIn(LiveData<Resource<T>> successLiveData) {
