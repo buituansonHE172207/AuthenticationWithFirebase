@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,8 +27,9 @@ public class SignUpActivity extends AppCompatActivity {
 
     private AuthViewModel authViewModel;
     private EditText nameEditText, emailEditText, passwordEditText, confirmPasswordEditText;
-
+    private TextView notice;
     private Button signUpButton;
+    private ImageButton backButton;
 
 
     @Override
@@ -40,6 +42,9 @@ public class SignUpActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.passwordEditText);
         confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText);
         signUpButton = findViewById(R.id.loginButton);
+        notice = findViewById(R.id.resetNotice);
+        backButton = findViewById(R.id.backButton); // Use the correct ID if it's not "backButton"
+        backButton.setOnClickListener(v -> finish());
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
@@ -81,10 +86,12 @@ public class SignUpActivity extends AppCompatActivity {
                 displayLoadingButton(true);
                 authViewModel.registerUser(email, password).observe(SignUpActivity.this, resource -> {
                     if (resource.getStatus() == Resource.Status.SUCCESS) {
-                        Toast.makeText(SignUpActivity.this, "User created successfully", Toast.LENGTH_SHORT).show();
+                        displayNotice("User created successfully", "SUCCESS");
+                        //Toast.makeText(SignUpActivity.this, "User created successfully", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                     } else {
-                        Toast.makeText(SignUpActivity.this, "Signup Failed: " + resource.getMessage(), Toast.LENGTH_SHORT).show();
+                        displayNotice("Signup Failed: " + resource.getMessage(), "FAIL");
+                        //Toast.makeText(SignUpActivity.this, "Signup Failed: " + resource.getMessage(), Toast.LENGTH_SHORT).show();
                         displayLoadingButton(false);
                     }
                 });
@@ -123,5 +130,23 @@ public class SignUpActivity extends AppCompatActivity {
             signUpButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary)); // Enabled color
             signUpButton.setTextColor(ContextCompat.getColorStateList(this, R.color.white));
         }
+    }
+    private void displayNotice(String message, String messageType) {
+        notice.setText(message);
+
+        int colorResource;
+        switch (messageType) {
+            case "SUCCESS":
+                colorResource = R.color.primary;
+                break;
+            case "FAIL":
+                colorResource = R.color.warning;
+                break;
+            default:
+                colorResource = R.color.primary;
+                break;
+        }
+        notice.setTextColor(ContextCompat.getColorStateList(this, colorResource));
+        notice.setVisibility(View.VISIBLE);
     }
 }

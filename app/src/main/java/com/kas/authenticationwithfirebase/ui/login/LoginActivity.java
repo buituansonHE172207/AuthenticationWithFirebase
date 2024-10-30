@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
+import com.kas.authenticationwithfirebase.ui.forgotPassword.ForgotPasswordActivity;
 import com.kas.authenticationwithfirebase.ui.main.MainActivity;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.ui.signup.SignUpActivity;
@@ -28,19 +31,26 @@ public class LoginActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button loginButton;
-    private TextView signUpTextView;
-
+    private TextView signUpTextView,fogotPasswordTextView,notice;
     private AuthViewModel viewModel;
+    private ImageButton backButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
+        backButton = findViewById(R.id.backButton); // Use the correct ID if it's not "backButton"
+        backButton.setOnClickListener(v -> finish());
         signUpTextView = findViewById(R.id.signup_text);
+        fogotPasswordTextView = findViewById(R.id.fogot_password_text);
+        notice = findViewById(R.id.resetNotice);
+
+        viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -59,6 +69,12 @@ public class LoginActivity extends AppCompatActivity {
 
         emailEditText.addTextChangedListener(textWatcher);
         passwordEditText.addTextChangedListener(textWatcher);
+        signUpTextView.setOnClickListener(view -> {
+            startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
+        });
+        fogotPasswordTextView.setOnClickListener(view -> {
+            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
+        });
 
         loginButton.setOnClickListener(view -> {
             String email = emailEditText.getText().toString().trim();
@@ -76,10 +92,12 @@ public class LoginActivity extends AppCompatActivity {
             displayLoadingButton(true);
             viewModel.loginUser(email, password).observe(this, resource -> {
                 if (resource.getStatus() == Resource.Status.SUCCESS) {
+                    displayNotice("Success", "SUCCESS");
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 } else if (resource.getStatus() == Resource.Status.ERROR) {
-                    Toast.makeText(LoginActivity.this, resource.getMessage(), Toast.LENGTH_SHORT).show();
+                    displayNotice(resource.getMessage(), "FAIL");
+                    //Toast.makeText(LoginActivity.this, resource.getMessage(), Toast.LENGTH_SHORT).show();
                     displayLoadingButton(false);
                 }
             });
@@ -118,5 +136,23 @@ public class LoginActivity extends AppCompatActivity {
             loginButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary)); // Enabled color
             loginButton.setTextColor(ContextCompat.getColorStateList(this, R.color.white));
         }
+    }
+    private void displayNotice(String message, String messageType) {
+        notice.setText(message);
+
+        int colorResource;
+        switch (messageType) {
+            case "SUCCESS":
+                colorResource = R.color.primary;
+                break;
+            case "FAIL":
+                colorResource = R.color.warning;
+                break;
+            default:
+                colorResource = R.color.primary;
+                break;
+        }
+        notice.setTextColor(ContextCompat.getColorStateList(this, colorResource));
+        notice.setVisibility(View.VISIBLE);
     }
 }
