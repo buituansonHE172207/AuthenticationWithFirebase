@@ -55,7 +55,7 @@ public class MessageViewModel extends ViewModel {
             messages.setValue(Resource.loading(null));
 
             // Observe messages from the repository
-            LiveData<Resource<List<Message>>> observedMessages = messageRepository.observeMessages(chatRoomId);
+            LiveData<Resource<List<Message>>> observedMessages = messageRepository.observeMessages(chatRoomId,currentUserId);
 
             observedMessages.observeForever(resource -> {
                 if (resource.getData() != null) {

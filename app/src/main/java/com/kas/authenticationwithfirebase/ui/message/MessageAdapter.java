@@ -13,7 +13,10 @@ import com.bumptech.glide.Glide;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.model.Message;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -92,27 +95,38 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     // Text ViewHolder classes
     static class SentTextViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
+        TextView timestampTextView;
 
         SentTextViewHolder(View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.sent_text);
+            timestampTextView = itemView.findViewById(R.id.tvTimestamp);
+
         }
 
         void bind(Message message) {
             messageTextView.setText(message.getMessageContent());
+            timestampTextView.setText(formatTimestamp(message.getTimestamp()));
         }
     }
 
     static class ReceivedTextViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
+        TextView timestampTextView;
+        TextView senderNameTextView;
+
 
         ReceivedTextViewHolder(View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.received_text);
+            timestampTextView = itemView.findViewById(R.id.tvTimestamp);
+            senderNameTextView = itemView.findViewById(R.id.user_chat_name);
         }
 
         void bind(Message message) {
             messageTextView.setText(message.getMessageContent());
+            timestampTextView.setText(formatTimestamp(message.getTimestamp()));
+            senderNameTextView.setText(message.getSenderId());
         }
     }
 
@@ -142,4 +156,10 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             Glide.with(itemView.getContext()).load(message.getMessageContent()).into(messageImageView);
         }
     }
+
+    private static String formatTimestamp(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        return sdf.format(new Date(timestamp));
+    }
+
 }

@@ -1,10 +1,16 @@
 package com.kas.authenticationwithfirebase.ui.message;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,7 +34,7 @@ public class MessageActivity extends AppCompatActivity {
     private MessageAdapter messageAdapter;
     private RecyclerView recyclerView;
     private TextInputEditText messageInput;
-    private FloatingActionButton sendButton;
+    private ImageButton sendButton,backButton;
     private List<Message> messages = new ArrayList<>();
     private String chatRoomId;
     private Observer<Resource<List<Message>>> messagesObserver;
@@ -45,6 +51,10 @@ public class MessageActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view_messages);
         messageInput = findViewById(R.id.message_input);
         sendButton = findViewById(R.id.send_button);
+        backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
+        extraIcon = (ImageButton) findViewById(R.id.btnExtra);
+        extraIcon.setOnClickListener(this::showPopupMenu);
 
         messageViewModel = new ViewModelProvider(this).get(MessageViewModel.class);
         messageAdapter = new MessageAdapter(messages, messageViewModel.getCurrentUserId());
@@ -56,6 +66,10 @@ public class MessageActivity extends AppCompatActivity {
             if (resource.getStatus() == Resource.Status.SUCCESS) {
                 messages.clear();
                 messages.addAll(resource.getData());
+                for (Message message : resource.getData()) {
+                    List<String> readBy = message.getReadBy();
+                    messageViewModel.markMessageAsRead(chatRoomId, message.getMessageId());
+                }
                 messageAdapter.notifyDataSetChanged();
                 if (!messages.isEmpty()) {
                     // Scroll to the last message
@@ -80,6 +94,7 @@ public class MessageActivity extends AppCompatActivity {
                 messageInput.setText("");
             }
         });
+
     }
 
     @Override
@@ -93,5 +108,41 @@ public class MessageActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         messageViewModel.removeMessagesListener(chatRoomId);
+    }
+    @SuppressLint("RestrictedApi")
+    private void showPopupMenu(View view) {
+        // Create a MenuBuilder instead of PopupMenu
+        MenuBuilder menuBuilder = new MenuBuilder(this);
+        getMenuInflater().inflate(R.menu.chat_extra, menuBuilder);
+
+        // Create the MenuPopupHelper with the MenuBuilder
+        MenuPopupHelper menuPopupHelper = new MenuPopupHelper(this, menuBuilder, view);
+        menuPopupHelper.setForceShowIcon(true);  // Show icons in the popup menu
+
+        // Set the menu item click listener
+        menuBuilder.setCallback(new MenuBuilder.Callback() {
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.btnCamera) {
+                    return true;
+                } else if (itemId == R.id.btnAttachment) {
+                    // Handle settings action, e.g., open settings activity
+                    return true;
+                } else if (itemId == R.id.btnMic) {
+                    // Handle settings action, e.g., open settings activity
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onMenuModeChange(MenuBuilder menu) {
+                // Not needed in this case
+            }
+        });
+
+        // Show the popup menu
+        menuPopupHelper.show();
     }
 }

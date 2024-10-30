@@ -93,9 +93,10 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
             lastMessage.setText(chatRoom.getLastMessage());
 
             if (chatRoom.getLastMessageTimestamp() != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm, dd MMM yyyy", Locale.getDefault());
-                String dateString = sdf.format(new Date(chatRoom.getLastMessageTimestamp()));
-                lastMessageTimestamp.setText(dateString);
+                //SimpleDateFormat sdf = new SimpleDateFormat("HH:mm, dd MMM yyyy", Locale.getDefault());
+                //String dateString = sdf.format(new Date(chatRoom.getLastMessageTimestamp()));
+                //lastMessageTimestamp.setText(dateString);
+                lastMessageTimestamp.setText(getRelativeTime(chatRoom.getLastMessageTimestamp()));
             } else {
                 lastMessageTimestamp.setText("");
             }
@@ -107,4 +108,25 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
             }
         }
     }
+    private String getRelativeTime(long timestamp) {
+        long now = System.currentTimeMillis();
+        long diff = now - timestamp;
+
+        if (diff < 60 * 1000) { // less than a minute
+            return "Just now";
+        } else if (diff < 60 * 60 * 1000) { // less than an hour
+            long minutes = diff / (60 * 1000);
+            return minutes + " min ago";
+        } else if (diff < 24 * 60 * 60 * 1000) { // less than a day
+            long hours = diff / (60 * 60 * 1000);
+            return hours + " hr ago";
+        } else if (diff < 7 * 24 * 60 * 60 * 1000) { // less than a week
+            long days = diff / (24 * 60 * 60 * 1000);
+            return days + " day" + (days > 1 ? "s" : "") + " ago";
+        } else {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+            return sdf.format(new Date(timestamp));
+        }
+    }
+
 }
