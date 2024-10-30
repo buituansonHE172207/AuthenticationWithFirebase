@@ -2,6 +2,7 @@ package com.kas.authenticationwithfirebase.ui.settings;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
@@ -20,7 +21,6 @@ public class AppearanceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_appearance);
-
         // Set up the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -28,7 +28,6 @@ public class AppearanceActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable back button
             getSupportActionBar().setTitle("");
         }
-
         sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE);
 
         switchDarkMode = findViewById(R.id.switchDarkMode);
@@ -51,5 +50,14 @@ public class AppearanceActivity extends AppCompatActivity {
                 AppCompatDelegate.setDefaultNightMode(isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
             }
         });
+    }
+    // Handle back button in the toolbar
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // Close this activity and go back
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
