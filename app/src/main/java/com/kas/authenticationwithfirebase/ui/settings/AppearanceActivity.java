@@ -1,61 +1,101 @@
 package com.kas.authenticationwithfirebase.ui.settings;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.CompoundButton;
+import android.view.View;
+import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.kas.authenticationwithfirebase.R;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class AppearanceActivity extends AppCompatActivity {
 
     private Switch switchDarkMode;
-    private SharedPreferences sharedPreferences;
+    private Spinner spinnerTextSize;
+    private AppearanceViewModel appearanceViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_appearance);
+
         // Set up the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable back button
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("");
         }
-        sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE);
 
+        // Initialize the ViewModel
+        appearanceViewModel = new ViewModelProvider(this).get(AppearanceViewModel.class);
+
+        // Initialize the switch and spinner
         switchDarkMode = findViewById(R.id.switchDarkMode);
+        spinnerTextSize = findViewById(R.id.spinnerTextSize);
 
-        // Load current theme setting
-        boolean isDarkMode = sharedPreferences.getBoolean("dark_mode", false);
-        switchDarkMode.setChecked(isDarkMode);
-        AppCompatDelegate.setDefaultNightMode(isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+        // Set up spinner options for text size
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.text_size_options, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerTextSize.setAdapter(adapter);
 
-        // Set up switch listener
-        switchDarkMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        // Observe text size and update spinner selection
+        appearanceViewModel.getTextSize().observe(this, new Observer<Float>() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // Save preference
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("dark_mode", isChecked);
-                editor.apply();
-
-                // Apply the new theme
-                AppCompatDelegate.setDefaultNightMode(isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+            public void onChanged(Float textSize) {
+                int position = textSize.equals(AppearanceViewModel.SMALL_TEXT_SIZE) ? 0 :
+                        textSize.equals(AppearanceViewModel.MEDIUM_TEXT_SIZE) ? 1 : 2;
+                spinnerTextSize.setSelection(position);
             }
         });
+
+        // Set listener for text size changes
+        spinnerTextSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                float selectedSize = position == 0 ? AppearanceViewModel.SMALL_TEXT_SIZE :
+                        position == 1 ? AppearanceViewModel.MEDIUM_TEXT_SIZE : AppearanceViewModel.LARGE_TEXT_SIZE;
+                appearanceViewModel.setTextSize(selectedSize);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // You can leave this empty if there's no specific action when nothing is selected
+            }
+        });
+
+
+        // Observe dark mode setting
+        appearanceViewModel.getIsDarkMode().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isDarkMode) {
+                switchDarkMode.setChecked(isDarkMode != null && isDarkMode);
+            }
+        });
+
+        // Set listener for dark mode toggle
+        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) ->
+                appearanceViewModel.toggleDarkMode(isChecked)
+        );
     }
+
     // Handle back button in the toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish(); // Close this activity and go back
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

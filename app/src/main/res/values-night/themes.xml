@@ -12,6 +12,9 @@
         <item name="android:statusBarColor">@color/top_nav_color</item> <!-- Optional: a different status bar color for dark mode -->
 
         <!-- Customize your dark theme here -->
+        <item name="android:windowBackground">@color/background</item>
+
+        <item name="android:textColor">@color/text_color</item>
     </style>
 
     <style name="Theme.AuthenticationWithFirebase" parent="Base.Theme.AuthenticationWithFirebase" />
