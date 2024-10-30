@@ -16,6 +16,7 @@
         android:layout_marginTop="36dp">
 
         <ImageButton
+            android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
@@ -127,8 +128,20 @@
             android:textColor="@color/menu_item_gray"
             android:textAllCaps="false"
             android:textSize="18sp" />
+        <TextView
+            android:id="@+id/resetNotice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="36dp"
+            android:text="Check your email inbox to proceed"
+            android:textColor="@color/primary"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/fogot_password_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
