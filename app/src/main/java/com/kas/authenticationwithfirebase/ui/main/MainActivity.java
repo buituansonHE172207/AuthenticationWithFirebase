@@ -88,11 +88,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Bottom Navigation View
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        // Set default highlighted item in Bottom Navigation
+        bottomNavigationView.setSelectedItemId(R.id.message);
 
         // Setup bottom navigation listener
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.new_chat) {
-                chatRoomViewModel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
+                //chatRoomViewModel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
                 return true;
             } else if (item.getItemId() == R.id.message ) {
                 return true;
