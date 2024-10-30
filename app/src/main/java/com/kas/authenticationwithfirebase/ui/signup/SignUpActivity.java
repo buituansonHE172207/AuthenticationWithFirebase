@@ -78,12 +78,14 @@ public class SignUpActivity extends AppCompatActivity {
                     passwordEditText.requestFocus();
                     return;
                 }
+                displayLoadingButton(true);
                 authViewModel.registerUser(email, password).observe(SignUpActivity.this, resource -> {
                     if (resource.getStatus() == Resource.Status.SUCCESS) {
                         Toast.makeText(SignUpActivity.this, "User created successfully", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                     } else {
                         Toast.makeText(SignUpActivity.this, "Signup Failed: " + resource.getMessage(), Toast.LENGTH_SHORT).show();
+                        displayLoadingButton(false);
                     }
                 });
             }
@@ -105,6 +107,21 @@ public class SignUpActivity extends AppCompatActivity {
             signUpButton.setEnabled(false);
             signUpButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.disabled_button)); // disabled color
             signUpButton.setTextColor(ContextCompat.getColorStateList(this, R.color.menu_item_gray));
+        }
+    }
+    private void displayLoadingButton(Boolean isLoading){
+        if (isLoading){
+            // Disable the login button and set "Logging in" text and color
+            signUpButton.setEnabled(false);
+            signUpButton.setText("Logging in...");
+            signUpButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.disabled_button)); // Gray background
+            signUpButton.setTextColor(ContextCompat.getColorStateList(this, R.color.menu_item_gray));
+        } else{
+            // Reset the button state after login attempt is complete
+            signUpButton.setEnabled(true);
+            signUpButton.setText("Login");
+            signUpButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary)); // Enabled color
+            signUpButton.setTextColor(ContextCompat.getColorStateList(this, R.color.white));
         }
     }
 }

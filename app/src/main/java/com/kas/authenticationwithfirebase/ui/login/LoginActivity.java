@@ -73,12 +73,14 @@ public class LoginActivity extends AppCompatActivity {
                 passwordEditText.requestFocus();
                 return;
             }
+            displayLoadingButton(true);
             viewModel.loginUser(email, password).observe(this, resource -> {
                 if (resource.getStatus() == Resource.Status.SUCCESS) {
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 } else if (resource.getStatus() == Resource.Status.ERROR) {
                     Toast.makeText(LoginActivity.this, resource.getMessage(), Toast.LENGTH_SHORT).show();
+                    displayLoadingButton(false);
                 }
             });
         });
@@ -100,6 +102,21 @@ public class LoginActivity extends AppCompatActivity {
             loginButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.disabled_button)); // disabled color
             loginButton.setTextColor(ContextCompat.getColorStateList(this, R.color.menu_item_gray));
 
+        }
+    }
+    private void displayLoadingButton(Boolean isLoading){
+        if (isLoading){
+            // Disable the login button and set "Logging in" text and color
+            loginButton.setEnabled(false);
+            loginButton.setText("Logging in...");
+            loginButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.disabled_button)); // Gray background
+            loginButton.setTextColor(ContextCompat.getColorStateList(this, R.color.menu_item_gray));
+        } else{
+            // Reset the button state after login attempt is complete
+            loginButton.setEnabled(true);
+            loginButton.setText("Login");
+            loginButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary)); // Enabled color
+            loginButton.setTextColor(ContextCompat.getColorStateList(this, R.color.white));
         }
     }
 }

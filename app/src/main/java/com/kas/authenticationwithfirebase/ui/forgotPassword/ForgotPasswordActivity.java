@@ -31,7 +31,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         // Initialize the views
         emailEditText = findViewById(R.id.forgot_password_email);
         resetPasswordButton = findViewById(R.id.reset_password_button);
-        loginTextView = findViewById(R.id.login_text);
+        loginTextView = findViewById(R.id.back_to_login_text);
 
         viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
