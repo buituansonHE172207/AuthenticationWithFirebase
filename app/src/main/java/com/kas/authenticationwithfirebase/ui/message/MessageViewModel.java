@@ -5,9 +5,11 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.kas.authenticationwithfirebase.data.model.Message;
+import com.kas.authenticationwithfirebase.data.model.User;
 import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
 import com.kas.authenticationwithfirebase.data.repository.ChatRoomRepository;
 import com.kas.authenticationwithfirebase.data.repository.MessageRepository;
+import com.kas.authenticationwithfirebase.data.repository.UserRepository;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.List;
@@ -21,13 +23,18 @@ public class MessageViewModel extends ViewModel {
     private final MessageRepository messageRepository;
     private MutableLiveData<Resource<List<Message>>> messages;
     private final String currentUserId;
-    private ChatRoomRepository chatRoomRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final UserRepository userRepository;
 
     @Inject
-    public MessageViewModel(MessageRepository messageRepository, AuthRepository authRepository, ChatRoomRepository chatRoomRepository) {
+    public MessageViewModel(MessageRepository messageRepository,
+                            AuthRepository authRepository,
+                            ChatRoomRepository chatRoomRepository,
+                            UserRepository userRepository) {
         this.messageRepository = messageRepository;
         this.currentUserId = authRepository.getCurrentUserId();
         this.chatRoomRepository = chatRoomRepository;
+        this.userRepository = userRepository;
     }
 
     private <T> LiveData<Resource<T>> checkUserLoggedIn(LiveData<Resource<T>> successLiveData) {
@@ -44,7 +51,7 @@ public class MessageViewModel extends ViewModel {
         if (messages == null) {
             messages = new MutableLiveData<>();
             messages.setValue(Resource.loading(null));
-            messages = (MutableLiveData<Resource<List<Message>>>) messageRepository.observeMessages(chatRoomId);
+            messages = (MutableLiveData<Resource<List<Message>>>) messageRepository.observeMessages(chatRoomId, currentUserId);
         }
         return messages;
     }
@@ -74,12 +81,20 @@ public class MessageViewModel extends ViewModel {
         );
     }
 
+    // Get user profile
+    public LiveData<Resource<User>> getUserProfile(String userId) {
+        return userRepository.getUserProfile(userId);
+    }
+
     // Get current user ID
     public String getCurrentUserId() {
         return currentUserId;
     }
 
+    // Remove message listener
     public void removeMessagesListener(String chatRoomId) {
         messageRepository.removeMessageListener(chatRoomId);
     }
+
+
 }

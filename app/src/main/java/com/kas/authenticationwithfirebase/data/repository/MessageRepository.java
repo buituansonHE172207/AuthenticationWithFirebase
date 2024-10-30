@@ -1,5 +1,7 @@
 package com.kas.authenticationwithfirebase.data.repository;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -26,32 +28,6 @@ public class MessageRepository {
         this.messagesRef = firebaseDatabase.getReference("messages");
     }
 
-    // Observe messages in a chat room
-    public LiveData<Resource<List<Message>>> observeMessages(String chatRoomId) {
-        MutableLiveData<Resource<List<Message>>> result = new MutableLiveData<>();
-
-        result.setValue(Resource.loading(null));
-        messagesListener = messagesRef.child(chatRoomId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<Message> messages = new ArrayList<>();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Message message = dataSnapshot.getValue(Message.class);
-                    if (message != null) {
-                        messages.add(message);
-                    }
-                }
-                result.setValue(Resource.success(messages));
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                result.setValue(Resource.error(error.getMessage(), null));
-            }
-        });
-
-        return result;
-    }
 
     // Send a new message
     public LiveData<Resource<Message>> sendMessage(String chatRoomId, Message message) {
@@ -72,6 +48,55 @@ public class MessageRepository {
     }
 
 
+    // Observe messages in a chat room and update unread counts
+    public LiveData<Resource<List<Message>>> observeMessages(String chatRoomId, String userId) {
+        MutableLiveData<Resource<List<Message>>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(null));
+
+        messagesListener = messagesRef.child(chatRoomId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<Message> messages = new ArrayList<>();
+                int unreadCount = 0;
+
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Message message = dataSnapshot.getValue(Message.class);
+                    if (message != null) {
+                        messages.add(message);
+
+                        // Check if message is unread by the current user
+                        if (message.getReadBy() == null || !message.getReadBy().contains(userId)) {
+                            unreadCount++;
+                        }
+                    }
+                }
+
+                // Update unread count in the chat room collection
+                updateUnreadCountInChatRoom(chatRoomId, userId, unreadCount);
+
+                result.setValue(Resource.success(messages));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                result.setValue(Resource.error(error.getMessage(), null));
+            }
+        });
+
+        return result;
+    }
+
+    private void updateUnreadCountInChatRoom(String chatRoomId, String userId, int unreadCount) {
+        DatabaseReference chatRoomRef = FirebaseDatabase.getInstance().getReference("chatRooms").child(chatRoomId);
+
+        // Set the unread count specifically for this user in the map
+        chatRoomRef.child("unreadCounts").child(userId).setValue(unreadCount)
+                .addOnSuccessListener(aVoid -> Log.d("MessageRepository", "Unread count updated successfully"))
+                .addOnFailureListener(e -> Log.e("MessageRepository", "Failed to update unread count: " + e.getMessage()));
+    }
+
+
+    // Mark message as read and update unread count
     public LiveData<Resource<Boolean>> markMessageAsRead(String chatRoomId, String messageId, String userId) {
         MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(false));
@@ -85,7 +110,11 @@ public class MessageRepository {
             if (!readBy.contains(userId)) {
                 readBy.add(userId);
                 messagesRef.child(chatRoomId).child(messageId).child("readBy").setValue(readBy)
-                        .addOnSuccessListener(aVoid -> result.setValue(Resource.success(true)))
+                        .addOnSuccessListener(aVoid -> {
+                            // After marking as read, update unread count
+                            updateUnreadCountAfterRead(chatRoomId, userId);
+                            result.setValue(Resource.success(true));
+                        })
                         .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), false)));
             } else {
                 result.setValue(Resource.success(false));  // User has already read the message
@@ -94,6 +123,23 @@ public class MessageRepository {
 
         return result;
     }
+
+    private void updateUnreadCountAfterRead(String chatRoomId, String userId) {
+        messagesRef.child(chatRoomId).orderByChild("readBy/" + userId).equalTo(null)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        int unreadCount = (int) snapshot.getChildrenCount();
+                        updateUnreadCountInChatRoom(chatRoomId, userId, unreadCount);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("MessageRepository", "Failed to fetch unread messages count: " + error.getMessage());
+                    }
+                });
+    }
+
 
     // Delete message
     public LiveData<Resource<Boolean>> deleteMessage(String chatRoomId, String messageId, String userId) {

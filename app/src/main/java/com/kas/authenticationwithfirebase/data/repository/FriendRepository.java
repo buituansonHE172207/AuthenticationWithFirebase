@@ -31,6 +31,11 @@ public class FriendRepository {
     public LiveData<Resource<Boolean>> addFriend(String currentUserId, String friendUserId) {
         MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
 
+        if (currentUserId.equals(friendUserId)) {
+            result.setValue(Resource.error("Cannot add yourself as a friend", false));
+            return result;
+        }
+
         CollectionReference currentUserFriendsRef = firebaseFirestore.collection(USERS_COLLECTION)
                 .document(currentUserId)
                 .collection(FRIENDS_SUB_COLLECTION);

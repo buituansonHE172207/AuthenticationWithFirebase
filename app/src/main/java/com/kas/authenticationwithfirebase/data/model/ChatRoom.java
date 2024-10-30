@@ -1,6 +1,8 @@
 package com.kas.authenticationwithfirebase.data.model;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatRoom {
     private String chatRoomId;
@@ -10,6 +12,7 @@ public class ChatRoom {
     private String lastMessage;
     private Long lastMessageTimestamp;
     private boolean isGroupChat;
+    private Map<String, Integer> unreadCounts;
 
     public ChatRoom(String chatRoomId, String chatRoomName, List<String> userIds, Long createdAt, String lastMessage, Long lastMessageTimestamp, boolean isGroupChat) {
         this.chatRoomId = chatRoomId;
@@ -19,6 +22,7 @@ public class ChatRoom {
         this.lastMessage = lastMessage;
         this.lastMessageTimestamp = lastMessageTimestamp;
         this.isGroupChat = isGroupChat;
+        this.unreadCounts = new HashMap<>();
     }
 
     public ChatRoom() {
@@ -78,5 +82,17 @@ public class ChatRoom {
 
     public void setChatRoomName(String chatRoomName) {
         this.chatRoomName = chatRoomName;
+    }
+
+    public Map<String, Integer> getUnreadCounts() {
+        return unreadCounts;
+    }
+
+    public void setUnreadCounts(Map<String, Integer> unreadCounts) {
+        this.unreadCounts = unreadCounts;
+    }
+
+    public int getUnreadCountForUser(String userId) {
+        return unreadCounts != null && unreadCounts.containsKey(userId) ? unreadCounts.get(userId) : 0;
     }
 }
