@@ -47,17 +47,12 @@ public class ChatRoomViewModel extends ViewModel {
         return chatRoomRepository.startNewGroupChat(userId);
     }
 
-    public LiveData<Resource<Boolean>> updateLastMessage(String chatRoomId, String lastMessage, Long lastMessageTimestamp) {
-        return chatRoomRepository.updateLastMessage(chatRoomId, lastMessage, lastMessageTimestamp);
-    }
 
     @Override
     protected void onCleared() {
         super.onCleared();
         chatRoomRepository.removeChatRoomsListener();
     }
-
-
 
 
 }
