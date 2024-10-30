@@ -26,36 +26,33 @@ public class FriendViewModel extends ViewModel {
         this.currentUserId = authRepository.getCurrentUserId();
     }
 
-    private <T> LiveData<Resource<T>> requireCurrentUser(LiveData<Resource<T>> onValidUser, Resource<T> error) {
+    private <T> LiveData<Resource<T>> checkUserLoggedIn(LiveData<Resource<T>> successLiveData) {
         if (currentUserId == null) {
-            MutableLiveData<Resource<T>> result = new MutableLiveData<>();
-            result.setValue(error);
-            return result;
+            MutableLiveData<Resource<T>> errorResult = new MutableLiveData<>();
+            errorResult.setValue(Resource.error("User not logged in", null));
+            return errorResult;
         }
-        return onValidUser;
+        return successLiveData;
     }
 
     // Add a friend
     public LiveData<Resource<Boolean>> addFriend(String friendUserId) {
-        return requireCurrentUser(
-                friendRepository.addFriend(currentUserId, friendUserId),
-                Resource.error("User not logged in", false)
+        return checkUserLoggedIn(
+                friendRepository.addFriend(currentUserId, friendUserId)
         );
     }
 
     // Remove a friend
     public LiveData<Resource<Boolean>> removeFriend(String friendUserId) {
-        return requireCurrentUser(
-                friendRepository.removeFriend(currentUserId, friendUserId),
-                Resource.error("User not logged in", false)
+        return checkUserLoggedIn(
+                friendRepository.removeFriend(currentUserId, friendUserId)
         );
     }
 
     // Get friends list
     public LiveData<Resource<List<User>>> getFriendsList() {
-        return requireCurrentUser(
-                friendRepository.getFriendsList(currentUserId),
-                Resource.error("User not logged in", null)
+        return checkUserLoggedIn(
+                friendRepository.getFriendsList(currentUserId)
         );
     }
 

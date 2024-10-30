@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.kas.authenticationwithfirebase.data.model.Message;
 import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
+import com.kas.authenticationwithfirebase.data.repository.ChatRoomRepository;
 import com.kas.authenticationwithfirebase.data.repository.MessageRepository;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
@@ -20,18 +21,22 @@ public class MessageViewModel extends ViewModel {
     private final MessageRepository messageRepository;
     private MutableLiveData<Resource<List<Message>>> messages;
     private final String currentUserId;
+    private ChatRoomRepository chatRoomRepository;
 
     @Inject
-    public MessageViewModel(MessageRepository messageRepository, AuthRepository authRepository) {
+    public MessageViewModel(MessageRepository messageRepository, AuthRepository authRepository, ChatRoomRepository chatRoomRepository) {
         this.messageRepository = messageRepository;
         this.currentUserId = authRepository.getCurrentUserId();
+        this.chatRoomRepository = chatRoomRepository;
     }
 
-    private <T> LiveData<Resource<T>> requireCurrentUser(LiveData<Resource<T>> onValidUser, Resource<T> error) {
+    private <T> LiveData<Resource<T>> checkUserLoggedIn(LiveData<Resource<T>> successLiveData) {
         if (currentUserId == null) {
-            return new MutableLiveData<>(error);
+            MutableLiveData<Resource<T>> errorResult = new MutableLiveData<>();
+            errorResult.setValue(Resource.error("User not logged in", null));
+            return errorResult;
         }
-        return onValidUser;
+        return successLiveData;
     }
 
     // Observe messages in a chat room
@@ -47,25 +52,34 @@ public class MessageViewModel extends ViewModel {
     // Send a new message
     public LiveData<Resource<Message>> sendMessage(String chatRoomId, Message message) {
         message.setSenderId(currentUserId);
-        return requireCurrentUser(
-                messageRepository.sendMessage(chatRoomId, message),
-                Resource.error("User not found", null)
+        LiveData<Resource<Message>> result = checkUserLoggedIn(
+                messageRepository.sendMessage(chatRoomId, message)
         );
+        // Update last message in chat room
+        chatRoomRepository.updateLastMessage(message);
+        return result;
     }
 
     // Mark message as read
     public LiveData<Resource<Boolean>> markMessageAsRead(String chatRoomId, String messageId) {
-        return requireCurrentUser(
-                messageRepository.markMessageAsRead(chatRoomId, messageId, currentUserId),
-                Resource.error("User not found", false)
+        return checkUserLoggedIn(
+                messageRepository.markMessageAsRead(chatRoomId, messageId, currentUserId)
         );
     }
 
     // Delete a message
     public LiveData<Resource<Boolean>> deleteMessage(String chatRoomId, String messageId) {
-        return requireCurrentUser(
-                messageRepository.deleteMessage(chatRoomId, messageId, currentUserId),
-                Resource.error("User not found", false)
+        return checkUserLoggedIn(
+                messageRepository.deleteMessage(chatRoomId, messageId, currentUserId)
         );
+    }
+
+    // Get current user ID
+    public String getCurrentUserId() {
+        return currentUserId;
+    }
+
+    public void removeMessagesListener(String chatRoomId) {
+        messageRepository.removeMessageListener(chatRoomId);
     }
 }

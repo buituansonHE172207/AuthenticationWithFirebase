@@ -12,6 +12,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.kas.authenticationwithfirebase.data.model.ChatRoom;
+import com.kas.authenticationwithfirebase.data.model.Message;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.ArrayList;
@@ -155,15 +156,15 @@ public class ChatRoomRepository {
         }
     }
 
-    public LiveData<Resource<Boolean>> updateLastMessage(String chatRoomId, String lastMessage, Long lastMessageTimestamp) {
+    public LiveData<Resource<Boolean>> updateLastMessage(Message message) {
         MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(false));
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put("lastMessage", lastMessage);
-        updates.put("lastMessageTimestamp", lastMessageTimestamp);
+        updates.put("lastMessage", message.getMessageContent());
+        updates.put("lastMessageTimestamp", message.getTimestamp());
 
-        chatRoomsRef.child(chatRoomId).updateChildren(updates)
+        chatRoomsRef.child(message.getChatRoomId()).updateChildren(updates)
                 .addOnSuccessListener(aVoid -> result.setValue(Resource.success(true)))
                 .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), false)));
 

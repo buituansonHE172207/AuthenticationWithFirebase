@@ -42,8 +42,6 @@ public class AuthViewModel extends ViewModel {
         return authRepository.resetPassword(email);
     }
 
-
-
     // Is User Logged In
     public boolean isUserLoggedIn() {
         return authRepository.isUserLoggedIn();
