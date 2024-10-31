@@ -187,6 +187,22 @@ public class ChatRoomRepository {
             chatRoomsListener = null;
         }
     }
+    public LiveData<Resource<Boolean>> deleteChatRoom(String chatRoomId) {
+        MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(false));
+
+        chatRoomsRef.child(chatRoomId).removeValue()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("ChatRoomRepository", "Chat room deleted successfully: " + chatRoomId);
+                    result.setValue(Resource.success(true));
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ChatRoomRepository", "Failed to delete chat room: " + e.getMessage());
+                    result.setValue(Resource.error(e.getMessage(), false));
+                });
+
+        return result;
+    }
 
     public LiveData<Resource<Boolean>> updateLastMessage(Message message) {
         MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();

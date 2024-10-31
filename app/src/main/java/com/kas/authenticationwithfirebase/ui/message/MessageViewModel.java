@@ -121,7 +121,10 @@ public class MessageViewModel extends ViewModel {
                 messageRepository.markMessageAsRead(chatRoomId, messageId, currentUserId)
         );
     }
-
+    // Delete messages
+    public LiveData<Resource<Boolean>> deleteMessages(String chatRoomId) {
+        return messageRepository.deleteMessages(chatRoomId);
+    }
     // Delete a message
     public LiveData<Resource<Boolean>> deleteMessage(String chatRoomId, String messageId) {
         return checkUserLoggedIn(

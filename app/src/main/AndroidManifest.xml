@@ -39,10 +39,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AuthenticationWithFirebase"
         tools:targetApi="31">
+        <activity
+            android:name=".ui.settings.ClearChatHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.settings.StorageAndDataActivity"
+            android:exported="false" />
+
         <service
             android:name=".service.MyFirebaseMessagingService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".ui.friend.FriendActivity"

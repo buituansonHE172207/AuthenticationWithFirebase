@@ -140,6 +140,20 @@ public class MessageRepository {
                 });
     }
 
+    // Delete messages
+    public LiveData<Resource<Boolean>> deleteMessages(String chatRoomId) {
+        MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(false));
+
+        DatabaseReference messageRef = messagesRef.child(chatRoomId);
+
+        // Remove all messages in the chat room for all users
+        messageRef.removeValue()
+                .addOnSuccessListener(aVoid -> result.setValue(Resource.success(true)))
+                .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), false)));
+
+        return result;
+    }
 
     // Delete message
     public LiveData<Resource<Boolean>> deleteMessage(String chatRoomId, String messageId, String userId) {

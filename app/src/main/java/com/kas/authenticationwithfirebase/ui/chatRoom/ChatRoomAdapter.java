@@ -3,7 +3,9 @@ package com.kas.authenticationwithfirebase.ui.chatRoom;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,20 +22,36 @@ import java.util.Locale;
 public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRoomViewHolder> {
 
     private final List<ChatRoom> chatRooms = new ArrayList<>();
-    private OnChatRoomClickListener listener;
+    private boolean hideButton = true; // Default value is true
+    private OnChatRoomClickListener clickListener;
+    private OnDeleteChatRoomClickListener deleteListener;
 
     public interface OnChatRoomClickListener {
         void onChatRoomClick(ChatRoom chatRoom);
     }
 
+    public interface OnDeleteChatRoomClickListener {
+        void onDeleteChatRoomClick(ChatRoom chatRoom);
+    }
+
     public void setOnChatRoomClickListener(OnChatRoomClickListener listener) {
-        this.listener = listener;
+        this.clickListener = listener;
+    }
+
+    public void setOnDeleteChatRoomClickListener(OnDeleteChatRoomClickListener deleteListener) {
+        this.deleteListener = deleteListener;
     }
 
     public void setChatRooms(List<ChatRoom> chatRooms) {
         this.chatRooms.clear();
         this.chatRooms.addAll(chatRooms);
         notifyDataSetChanged();
+    }
+
+    // Method to change the visibility of the button
+    public void setHideButton(boolean hideButton) {
+        this.hideButton = hideButton;
+        notifyDataSetChanged(); // Refresh the adapter to apply changes
     }
 
     @NonNull
@@ -45,8 +63,12 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
 
     @Override
     public void onBindViewHolder(@NonNull ChatRoomViewHolder holder, int position) {
-        ChatRoom chatRoom = chatRooms.get(position);
-        holder.bind(chatRoom);
+        holder.bind(chatRooms.get(position));
+        if (hideButton) {
+            holder.deleteChatButton.setVisibility(View.GONE); // Hide the button
+        } else {
+            holder.deleteChatButton.setVisibility(View.VISIBLE); // Show the button
+        }
     }
 
     @Override
@@ -58,24 +80,34 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         private final TextView chatRoomName;
         private final TextView lastMessage;
         private final TextView lastMessageTimestamp;
+        private final Button deleteChatButton;
 
         ChatRoomViewHolder(@NonNull View itemView) {
             super(itemView);
             chatRoomName = itemView.findViewById(R.id.chatRoomName);
             lastMessage = itemView.findViewById(R.id.lastMessage);
             lastMessageTimestamp = itemView.findViewById(R.id.lastMessageTimestamp);
+            deleteChatButton = itemView.findViewById(R.id.clearChatButton);
 
             itemView.setOnClickListener(v -> {
-                if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
-                    listener.onChatRoomClick(chatRooms.get(getAdapterPosition()));
+                if (clickListener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
+                    clickListener.onChatRoomClick(chatRooms.get(getAdapterPosition()));
+                }
+            });
+
+            deleteChatButton.setOnClickListener(v -> {
+                if (deleteListener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
+                    ChatRoom chatRoom = chatRooms.get(getAdapterPosition());
+                    // Call deleteMessages method to clear the messages in the chat room
+                    deleteListener.onDeleteChatRoomClick(chatRoom);
+                    Toast.makeText(itemView.getContext(), "Clearing messages in chat room...", Toast.LENGTH_SHORT).show();
                 }
             });
         }
 
+
         void bind(ChatRoom chatRoom) {
-            String chatRoomNameText = chatRoom.isGroupChat() ? "Group Chat" : "Chat";
-            chatRoomNameText = chatRoomNameText + chatRoom.getChatRoomName();
-            chatRoomName.setText(chatRoomNameText);
+            chatRoomName.setText(chatRoom.isGroupChat() ? "Group: " + chatRoom.getChatRoomName() : chatRoom.getChatRoomName());
             lastMessage.setText(chatRoom.getLastMessage());
 
             if (chatRoom.getLastMessageTimestamp() != null) {

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
 import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
 import com.kas.authenticationwithfirebase.data.repository.ChatRoomRepository;
+import com.kas.authenticationwithfirebase.data.repository.MessageRepository;
 import com.kas.authenticationwithfirebase.data.repository.UserRepository;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
@@ -43,7 +44,6 @@ public class ChatRoomViewModel extends ViewModel {
     }
 
     public LiveData<Resource<ChatRoom>> createChatRoom(String userId) {
-        // Get friend user profile
         return checkUserLoggedIn(chatRoomRepository.startNewChat(userId, currentUserId));
     }
 
@@ -51,6 +51,9 @@ public class ChatRoomViewModel extends ViewModel {
         return chatRoomRepository.startNewGroupChat(userId);
     }
 
+    public LiveData<Resource<Boolean>> deleteChatRoom(String chatRoomId) {
+        return chatRoomRepository.deleteChatRoom(chatRoomId);
+    }
 
     @Override
     protected void onCleared() {

@@ -27,7 +27,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
         // Set up click listeners for each settings option
         findViewById(R.id.chat_option).setOnClickListener(view -> openAppearanceSettings());
-//        findViewById(R.id.link_notification).setOnClickListener(view -> openNotificationSettings());
+        findViewById(R.id.storage_data_option).setOnClickListener(view -> openStorageDataSettings());
 //        findViewById(R.id.link_privacy).setOnClickListener(view -> openPrivacySettings());
     }
 
@@ -35,10 +35,10 @@ public class SettingsActivity extends AppCompatActivity {
         startActivity(new Intent(SettingsActivity.this, AppearanceActivity.class));
     }
 
-    //
-//    private void openNotificationSettings() {
-//        startActivity(new Intent(this, NotificationActivity.class));
-//    }
+
+    private void openStorageDataSettings() {
+        startActivity(new Intent(this, StorageAndDataActivity.class));
+    }
 //
 //    private void openPrivacySettings() {
 //        startActivity(new Intent(this, PrivacyActivity.class));
