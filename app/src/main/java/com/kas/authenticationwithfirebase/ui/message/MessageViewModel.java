@@ -98,7 +98,8 @@ public class MessageViewModel extends ViewModel {
                     message.getMessageType(),
                     message.getTimestamp(),
                     message.getReadBy(),
-                    sender != null ? sender.getUsername() : "Unknown"
+                    sender != null ? sender.getUsername() : "Unknown",
+                    sender != null ? sender.getProfileImageUrl() : ""
             ));
         }
 

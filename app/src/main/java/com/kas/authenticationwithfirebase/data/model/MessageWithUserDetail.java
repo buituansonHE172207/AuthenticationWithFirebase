@@ -13,8 +13,9 @@ public class MessageWithUserDetail {
     private long timestamp;
     private List<String> readBy;
     private String username;
+    private String profileImageUrl;
 
-    public MessageWithUserDetail(String messageId, String chatRoomId, String senderId, String messageContent, String messageType, long timestamp, List<String> readBy, String username) {
+    public MessageWithUserDetail(String messageId, String chatRoomId, String senderId, String messageContent, String messageType, long timestamp, List<String> readBy, String username, String profileImageUrl) {
         this.messageId = messageId;
         this.chatRoomId = chatRoomId;
         this.senderId = senderId;
@@ -23,6 +24,7 @@ public class MessageWithUserDetail {
         this.timestamp = timestamp;
         this.readBy = readBy;
         this.username = username;
+        this.profileImageUrl = profileImageUrl;
     }
 
     public String getMessageId() {
@@ -87,5 +89,13 @@ public class MessageWithUserDetail {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }

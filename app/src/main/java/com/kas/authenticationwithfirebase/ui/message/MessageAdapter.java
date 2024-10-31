@@ -115,6 +115,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView messageTextView;
         TextView timestampTextView;
         TextView senderNameTextView;
+        ImageView profileImageView;
 
 
         ReceivedTextViewHolder(View itemView) {
@@ -122,12 +123,19 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             messageTextView = itemView.findViewById(R.id.received_text);
             timestampTextView = itemView.findViewById(R.id.tvTimestamp);
             senderNameTextView = itemView.findViewById(R.id.user_chat_name);
+            profileImageView = itemView.findViewById(R.id.profile_image);
         }
 
         void bind(MessageWithUserDetail message) {
             messageTextView.setText(message.getMessageContent());
             timestampTextView.setText(formatTimestamp(message.getTimestamp()));
             senderNameTextView.setText(message.getUsername());
+
+            // Load profile image using Glide
+            Glide.with(itemView.getContext())
+                    .load(message.getProfileImageUrl()) // Ensure profile image URL is provided
+                    .placeholder(R.drawable.default_avatar) // Placeholder image if URL is missing
+                    .into(profileImageView);
         }
     }
 
