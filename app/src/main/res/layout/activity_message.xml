@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Top Toolbar -->
+        <!-- Chat List Section -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -29,7 +29,8 @@
             app:contentInsetEnd="0dp"
             app:contentInsetLeft="0dp"
             app:contentInsetRight="0dp"
-            app:contentInsetStart="0dp">
+            app:contentInsetStart="0dp"
+            android:paddingTop="16dp">
 
             <ImageButton
                 android:id="@+id/backButton"
@@ -70,8 +71,6 @@
 
         </com.google.android.material.appbar.MaterialToolbar>
 
-
-        <!-- Chat List Section -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_messages"
             android:layout_width="match_parent"
