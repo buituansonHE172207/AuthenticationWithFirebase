@@ -8,11 +8,13 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
@@ -23,6 +25,7 @@ import com.kas.authenticationwithfirebase.ui.friend.FriendActivity;
 import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
 import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
 import com.kas.authenticationwithfirebase.ui.settings.SettingsActivity;
+import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileActivity;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -97,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             if (item.getItemId() == R.id.new_chat) {
                 //chatRoomViewModel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
                 return true;
-            } else if (item.getItemId() == R.id.message ) {
+            } else if (item.getItemId() == R.id.message) {
                 return true;
             } else if (item.getItemId() == R.id.contact) {
                 // Open friends activity
@@ -131,6 +134,13 @@ public class MainActivity extends AppCompatActivity {
                 // Open settings activity
                 // Handle settings action, e.g., open settings activity
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+
+                return true;
+            } else if (itemId == R.id.btnProfile) {
+                // Open settings activity
+                // Handle settings action, e.g., open settings activity
+                Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
                 startActivity(intent);
 
                 return true;

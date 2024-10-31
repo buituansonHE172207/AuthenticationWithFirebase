@@ -36,6 +36,9 @@ public class UserProfileViewModel extends ViewModel {
     public LiveData<Resource<User>> getUserProfile() {
         return checkUserLoggedIn(userRepository.getUserProfile(userId));
     }
+    public LiveData<Resource<User>> getUserProfile(String userId) {
+        return checkUserLoggedIn(userRepository.getUserProfile(userId));
+    }
 
     public LiveData<Resource<Boolean>> updateUserProfile(User user) {
         return checkUserLoggedIn(userRepository.updateUserProfile(user));
