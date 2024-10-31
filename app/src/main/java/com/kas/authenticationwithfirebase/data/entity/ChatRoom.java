@@ -1,4 +1,4 @@
-package com.kas.authenticationwithfirebase.data.model;
+package com.kas.authenticationwithfirebase.data.entity;
 
 import java.util.HashMap;
 import java.util.List;

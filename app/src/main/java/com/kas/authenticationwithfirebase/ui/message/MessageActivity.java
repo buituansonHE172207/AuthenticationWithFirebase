@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.kas.authenticationwithfirebase.R;
-import com.kas.authenticationwithfirebase.data.model.Message;
+import com.kas.authenticationwithfirebase.data.entity.Message;
+import com.kas.authenticationwithfirebase.data.model.MessageWithUserDetail;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.ArrayList;
@@ -28,9 +29,9 @@ public class MessageActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TextInputEditText messageInput;
     private FloatingActionButton sendButton;
-    private List<Message> messages = new ArrayList<>();
+    private List<MessageWithUserDetail> messages = new ArrayList<>();
     private String chatRoomId;
-    private Observer<Resource<List<Message>>> messagesObserver;
+    private Observer<Resource<List<MessageWithUserDetail>>> messagesObserver;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

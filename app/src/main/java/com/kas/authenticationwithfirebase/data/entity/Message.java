@@ -1,6 +1,5 @@
-package com.kas.authenticationwithfirebase.data.model;
+package com.kas.authenticationwithfirebase.data.entity;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 public class Message {

@@ -11,7 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.kas.authenticationwithfirebase.R;
-import com.kas.authenticationwithfirebase.data.model.Message;
+import com.kas.authenticationwithfirebase.data.entity.Message;
+import com.kas.authenticationwithfirebase.data.model.MessageWithUserDetail;
 
 import java.util.List;
 
@@ -22,17 +23,17 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int VIEW_TYPE_SENT_IMAGE = 3;
     private static final int VIEW_TYPE_RECEIVED_IMAGE = 4;
 
-    private final List<Message> messages;
+    private final List<MessageWithUserDetail> messages;
     private final String currentUserId;
 
-    public MessageAdapter(List<Message> messages, String currentUserId) {
+    public MessageAdapter(List<MessageWithUserDetail> messages, String currentUserId) {
         this.messages = messages;
         this.currentUserId = currentUserId;
     }
 
     @Override
     public int getItemViewType(int position) {
-        Message message = messages.get(position);
+        MessageWithUserDetail message = messages.get(position);
         boolean isSent = message.getSenderId().equals(currentUserId);
 
         if (isSent) {
@@ -71,7 +72,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Message message = messages.get(position);
+        MessageWithUserDetail message = messages.get(position);
 
         if (holder instanceof SentTextViewHolder) {
             ((SentTextViewHolder) holder).bind(message);
@@ -98,7 +99,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             messageTextView = itemView.findViewById(R.id.sent_text);
         }
 
-        void bind(Message message) {
+        void bind(MessageWithUserDetail message) {
             messageTextView.setText(message.getMessageContent());
         }
     }
@@ -111,7 +112,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             messageTextView = itemView.findViewById(R.id.received_text);
         }
 
-        void bind(Message message) {
+        void bind(MessageWithUserDetail message) {
             messageTextView.setText(message.getMessageContent());
         }
     }
@@ -125,7 +126,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             messageImageView = itemView.findViewById(R.id.sent_image);
         }
 
-        void bind(Message message) {
+        void bind(MessageWithUserDetail message) {
             Glide.with(itemView.getContext()).load(message.getMessageContent()).into(messageImageView);
         }
     }
@@ -138,7 +139,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             messageImageView = itemView.findViewById(R.id.received_image);
         }
 
-        void bind(Message message) {
+        void bind(MessageWithUserDetail message) {
             Glide.with(itemView.getContext()).load(message.getMessageContent()).into(messageImageView);
         }
     }

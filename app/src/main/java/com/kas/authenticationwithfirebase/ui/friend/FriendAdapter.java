@@ -9,9 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kas.authenticationwithfirebase.R;
-import com.kas.authenticationwithfirebase.data.model.User;
-
-import org.w3c.dom.Text;
+import com.kas.authenticationwithfirebase.data.entity.User;
 
 import java.util.List;
 
