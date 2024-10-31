@@ -4,8 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.kas.authenticationwithfirebase.data.model.ChatRoom;
-import com.kas.authenticationwithfirebase.data.model.User;
+import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
 import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
 import com.kas.authenticationwithfirebase.data.repository.ChatRoomRepository;
 import com.kas.authenticationwithfirebase.data.repository.UserRepository;

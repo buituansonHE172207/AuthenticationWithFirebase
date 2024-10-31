@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.kas.authenticationwithfirebase.data.model.Friend;
-import com.kas.authenticationwithfirebase.data.model.User;
+import com.kas.authenticationwithfirebase.data.entity.Friend;
+import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.ArrayList;

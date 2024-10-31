@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.kas.authenticationwithfirebase.data.model.User;
+import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
 import com.kas.authenticationwithfirebase.data.repository.UserRepository;
 import com.kas.authenticationwithfirebase.utility.Resource;

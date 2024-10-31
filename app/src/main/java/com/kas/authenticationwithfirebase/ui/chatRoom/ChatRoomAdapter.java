@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kas.authenticationwithfirebase.R;
-import com.kas.authenticationwithfirebase.data.model.ChatRoom;
+import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

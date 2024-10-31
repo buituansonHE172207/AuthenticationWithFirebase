@@ -26,6 +26,8 @@ import com.kas.authenticationwithfirebase.data.model.Message;
 import com.kas.authenticationwithfirebase.utility.CameraManager;
 import com.kas.authenticationwithfirebase.utility.FileManager;
 import com.kas.authenticationwithfirebase.utility.RequestCodeManager;
+import com.kas.authenticationwithfirebase.data.entity.Message;
+import com.kas.authenticationwithfirebase.data.model.MessageWithUserDetail;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.ArrayList;
@@ -41,9 +43,9 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
     private RecyclerView recyclerView;
     private TextInputEditText messageInput;
     private ImageButton sendButton, backButton;
-    private List<Message> messages = new ArrayList<>();
+    private List<MessageWithUserDetail> messages = new ArrayList<>();
     private String chatRoomId;
-    private Observer<Resource<List<Message>>> messagesObserver;
+    private Observer<Resource<List<MessageWithUserDetail>>> messagesObserver;
 
     private ImageButton extraIcon;
     private CameraManager cameraManager;

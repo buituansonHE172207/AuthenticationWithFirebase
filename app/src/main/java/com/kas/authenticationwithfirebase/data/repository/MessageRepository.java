@@ -11,7 +11,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.kas.authenticationwithfirebase.data.model.Message;
+import com.kas.authenticationwithfirebase.data.entity.Message;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.ArrayList;

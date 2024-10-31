@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.kas.authenticationwithfirebase.data.model.User;
+import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import javax.inject.Inject;
