@@ -15,4 +15,6 @@
         <item>Medium</item>
         <item>Large</item>
     </string-array>
+    <string name="back_button_description">Back</string>
+    <string name="horizontal_scroll_view_description">Scrollable list of items</string>
 </resources>

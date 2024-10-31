@@ -8,10 +8,12 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent">
     <item
-        android:id="@+id/btnLogout"
-        android:title="Logout" />
+        android:id="@+id/btnProfile"
+        android:title="Profile" />
     <item
         android:id="@+id/btnSettings"
         android:title="Settings" />
-
+    <item
+        android:id="@+id/btnLogout"
+        android:title="Logout" />
 </menu>
