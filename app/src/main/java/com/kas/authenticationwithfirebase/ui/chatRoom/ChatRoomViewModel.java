@@ -5,8 +5,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
+import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
 import com.kas.authenticationwithfirebase.data.repository.ChatRoomRepository;
+import com.kas.authenticationwithfirebase.data.repository.FriendRepository;
 import com.kas.authenticationwithfirebase.data.repository.MessageRepository;
 import com.kas.authenticationwithfirebase.data.repository.UserRepository;
 import com.kas.authenticationwithfirebase.utility.Resource;
@@ -21,13 +23,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class ChatRoomViewModel extends ViewModel {
     private final ChatRoomRepository chatRoomRepository;
     private final String currentUserId;
-    private final UserRepository userRepository;
+    private final FriendRepository friendRepository;
 
     @Inject
-    public ChatRoomViewModel(ChatRoomRepository chatRoomRepository, AuthRepository authRepository, UserRepository userRepository) {
+    public ChatRoomViewModel(ChatRoomRepository chatRoomRepository, AuthRepository authRepository,FriendRepository friendRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.currentUserId = authRepository.getCurrentUserId();
-        this.userRepository = userRepository;
+        this.friendRepository = friendRepository;
     }
 
     private <T> LiveData<Resource<T>> checkUserLoggedIn(LiveData<Resource<T>> successLiveData) {
@@ -50,14 +52,22 @@ public class ChatRoomViewModel extends ViewModel {
     public LiveData<Resource<ChatRoom>> createGroupChatRoom(List<String> userId) {
         return chatRoomRepository.startNewGroupChat(userId);
     }
+
     public LiveData<Resource<Boolean>> deleteChatRoom(String chatRoomId) {
         return chatRoomRepository.deleteChatRoom(chatRoomId);
     }
+
     public LiveData<Resource<Integer>> getUnreadMessagesCount(String chatRoomId) {
         return checkUserLoggedIn(
                 chatRoomRepository.countUnreadMessages(chatRoomId, currentUserId)
         );
     }
+
+    // Get All Friends
+    public LiveData<Resource<List<User>>> getAllFriends() {
+        return checkUserLoggedIn(friendRepository.getFriendsList(currentUserId));
+    }
+
 
     @Override
     protected void onCleared() {
