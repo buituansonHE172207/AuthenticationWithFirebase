@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -27,6 +29,8 @@ public class CameraManager {
     public interface CamaraCallBack {
         void onMediaCaptured(Uri mediaUri, boolean isVideo);
         void onError(String error);
+
+        void onActivityResult(int requestCode, int resultCode, @Nullable Intent data);
     }
 
     public CameraManager(Context context, CamaraCallBack callBack) {

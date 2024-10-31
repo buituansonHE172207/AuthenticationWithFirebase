@@ -15,7 +15,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
+import com.kas.authenticationwithfirebase.ui.main.MainActivity;
 import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
@@ -30,6 +32,8 @@ public class FriendActivity extends AppCompatActivity {
     private SearchView searchView;
     private ViewSwitcher viewSwitcher;
     private FriendViewModel friendViewModel;
+    private BottomNavigationView bottomNavigationView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +119,30 @@ public class FriendActivity extends AppCompatActivity {
                 return false;
             }
         });
+        // Initialize Bottom Navigation View
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        // Set default highlighted item in Bottom Navigation
+        bottomNavigationView.setSelectedItemId(R.id.contact);
 
+        // Setup bottom navigation listener
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.new_chat) {
+                return true;
+            } else if (item.getItemId() == R.id.message ) {
+                Intent intent = new Intent(FriendActivity.this, MainActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (item.getItemId() == R.id.contact) {
+                // Open friends activity
+                //Intent intent = new Intent(FriendActivity.this, FriendActivity.class);
+                //startActivity(intent);
+                return true;
+            } else if (item.getItemId() == R.id.settings) {
+                // Handle settings action, e.g., open settings activity
+                return true;
+            }
+            return false;
+        });
     }
 
     // Show the friend list in ViewSwitcher

@@ -1,5 +1,7 @@
 package com.kas.authenticationwithfirebase.ui.message;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -96,7 +98,8 @@ public class MessageViewModel extends ViewModel {
                     message.getMessageType(),
                     message.getTimestamp(),
                     message.getReadBy(),
-                    sender != null ? sender.getUsername() : "Unknown"
+                    sender != null ? sender.getUsername() : "Unknown",
+                    sender != null ? sender.getProfileImageUrl() : ""
             ));
         }
 
@@ -121,7 +124,10 @@ public class MessageViewModel extends ViewModel {
                 messageRepository.markMessageAsRead(chatRoomId, messageId, currentUserId)
         );
     }
-
+    // Delete messages
+    public LiveData<Resource<Boolean>> deleteMessages(String chatRoomId) {
+        return messageRepository.deleteMessages(chatRoomId);
+    }
     // Delete a message
     public LiveData<Resource<Boolean>> deleteMessage(String chatRoomId, String messageId) {
         return checkUserLoggedIn(

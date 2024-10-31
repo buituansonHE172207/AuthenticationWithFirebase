@@ -44,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
-        backButton = findViewById(R.id.backButton); // Use the correct ID if it's not "backButton"
+        backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> finish());
         signUpTextView = findViewById(R.id.signup_text);
         fogotPasswordTextView = findViewById(R.id.fogot_password_text);

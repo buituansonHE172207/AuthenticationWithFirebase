@@ -29,12 +29,16 @@ import javax.inject.Inject;
 
 public class ChatRoomRepository {
     private final DatabaseReference chatRoomsRef;
+    private final DatabaseReference messagesRef;
+
     private ValueEventListener chatRoomsListener;
     private final CollectionReference usersRef;
 
     @Inject
     public ChatRoomRepository(FirebaseDatabase firebaseDatabase, FirebaseFirestore firebaseFirestore) {
         this.chatRoomsRef = firebaseDatabase.getReference("chatRooms");
+        this.messagesRef = firebaseDatabase.getReference("messages");
+
         this.usersRef = firebaseFirestore.collection("users");
     }
 
@@ -187,6 +191,22 @@ public class ChatRoomRepository {
             chatRoomsListener = null;
         }
     }
+    public LiveData<Resource<Boolean>> deleteChatRoom(String chatRoomId) {
+        MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(false));
+
+        chatRoomsRef.child(chatRoomId).removeValue()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("ChatRoomRepository", "Chat room deleted successfully: " + chatRoomId);
+                    result.setValue(Resource.success(true));
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ChatRoomRepository", "Failed to delete chat room: " + e.getMessage());
+                    result.setValue(Resource.error(e.getMessage(), false));
+                });
+
+        return result;
+    }
 
     public LiveData<Resource<Boolean>> updateLastMessage(Message message) {
         MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
@@ -202,4 +222,50 @@ public class ChatRoomRepository {
 
         return result;
     }
+    public LiveData<Resource<Integer>> countUnreadMessages(String chatRoomId, String userId) {
+        MutableLiveData<Resource<Integer>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(null));
+
+        DatabaseReference chatRoomMessagesRef = messagesRef.child(chatRoomId);
+
+        chatRoomMessagesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                int unreadCount = 0;
+                Log.d("countUnreadMessages", "Number of messages: " + snapshot.getChildrenCount() + "User: " + userId);
+
+                for (DataSnapshot messageSnapshot : snapshot.getChildren()) {
+                    Message message = messageSnapshot.getValue(Message.class);
+
+                    if (message != null) {
+                        List<String> readBy = message.getReadBy();
+
+                        // Safely log readBy to avoid NullPointerException
+                        if (readBy != null) {
+                            Log.d("countUnreadMessages", "Read by: " + readBy.toString());
+                            if (!readBy.contains(userId)) {
+                                unreadCount++;
+                            }
+                        } else {
+                            Log.d("countUnreadMessages", "Message has no readBy list. Counting as unread.");
+                            unreadCount++;
+                        }
+                    }
+                }
+
+                Log.d("countUnreadMessages", "Number of unread messages: " + unreadCount);
+                result.setValue(Resource.success(unreadCount));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                result.setValue(Resource.error(error.getMessage(), null));
+            }
+        });
+
+        return result;
+    }
+
+
+
 }

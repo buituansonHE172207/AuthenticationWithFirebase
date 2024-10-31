@@ -1,23 +1,21 @@
 package com.kas.authenticationwithfirebase.ui.settings;
 
-import android.os.Bundle;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-
+import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.kas.authenticationwithfirebase.R;
 
-public class SettingsActivity extends AppCompatActivity {
+public class StorageAndDataActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_storage_and_data);
         // Set up the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -25,25 +23,18 @@ public class SettingsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable back button
             getSupportActionBar().setTitle("");
         }
-        // Set up click listeners for each settings option
-        findViewById(R.id.chat_option).setOnClickListener(view -> openAppearanceSettings());
-        findViewById(R.id.storage_data_option).setOnClickListener(view -> openStorageDataSettings());
-//        findViewById(R.id.link_privacy).setOnClickListener(view -> openPrivacySettings());
-    }
 
-    private void openAppearanceSettings() {
-        startActivity(new Intent(SettingsActivity.this, AppearanceActivity.class));
-    }
+        LinearLayout clearChatContainer = findViewById(R.id.clear_chat_container);
 
-
-    private void openStorageDataSettings() {
-        startActivity(new Intent(this, StorageAndDataActivity.class));
+        clearChatContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to ClearChatHistoryActivity
+                Intent intent = new Intent(StorageAndDataActivity.this, ClearChatHistoryActivity.class);
+                startActivity(intent);
+            }
+        });
     }
-//
-//    private void openPrivacySettings() {
-//        startActivity(new Intent(this, PrivacyActivity.class));
-//    }
-// Handle back button in the toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -53,4 +44,3 @@ public class SettingsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
-

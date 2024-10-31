@@ -14,7 +14,10 @@ import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.Message;
 import com.kas.authenticationwithfirebase.data.model.MessageWithUserDetail;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -93,27 +96,46 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     // Text ViewHolder classes
     static class SentTextViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
+        TextView timestampTextView;
 
         SentTextViewHolder(View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.sent_text);
+            timestampTextView = itemView.findViewById(R.id.tvTimestamp);
+
         }
 
         void bind(MessageWithUserDetail message) {
             messageTextView.setText(message.getMessageContent());
+            timestampTextView.setText(formatTimestamp(message.getTimestamp()));
         }
     }
 
     static class ReceivedTextViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
+        TextView timestampTextView;
+        TextView senderNameTextView;
+        ImageView profileImageView;
+
 
         ReceivedTextViewHolder(View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.received_text);
+            timestampTextView = itemView.findViewById(R.id.tvTimestamp);
+            senderNameTextView = itemView.findViewById(R.id.user_chat_name);
+            profileImageView = itemView.findViewById(R.id.profile_image);
         }
 
         void bind(MessageWithUserDetail message) {
             messageTextView.setText(message.getMessageContent());
+            timestampTextView.setText(formatTimestamp(message.getTimestamp()));
+            senderNameTextView.setText(message.getUsername());
+
+            // Load profile image using Glide
+            Glide.with(itemView.getContext())
+                    .load(message.getProfileImageUrl()) // Ensure profile image URL is provided
+                    .placeholder(R.drawable.default_avatar) // Placeholder image if URL is missing
+                    .into(profileImageView);
         }
     }
 
@@ -143,4 +165,10 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             Glide.with(itemView.getContext()).load(message.getMessageContent()).into(messageImageView);
         }
     }
+
+    private static String formatTimestamp(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        return sdf.format(new Date(timestamp));
+    }
+
 }
