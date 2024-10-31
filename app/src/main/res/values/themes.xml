@@ -16,6 +16,9 @@
         <item name="android:statusBarColor">@color/top_nav_color</item>
 
         <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/background</item>
+
+        <item name="android:textColor">@color/text_color</item>
     </style>
 
     <style name="Theme.AuthenticationWithFirebase" parent="Base.Theme.AuthenticationWithFirebase" />

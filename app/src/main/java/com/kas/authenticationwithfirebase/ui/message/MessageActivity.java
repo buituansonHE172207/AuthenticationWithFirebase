@@ -1,6 +1,7 @@
 package com.kas.authenticationwithfirebase.ui.message;
 
 import android.os.Bundle;
+import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +33,9 @@ public class MessageActivity extends AppCompatActivity {
     private List<MessageWithUserDetail> messages = new ArrayList<>();
     private String chatRoomId;
     private Observer<Resource<List<MessageWithUserDetail>>> messagesObserver;
+
+    private ImageButton extraIcon;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
