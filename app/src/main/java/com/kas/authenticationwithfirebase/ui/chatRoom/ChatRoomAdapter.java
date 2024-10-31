@@ -16,8 +16,10 @@ import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRoomViewHolder> {
 
@@ -25,7 +27,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
     private boolean hideButton = true; // Default value is true
     private OnChatRoomClickListener clickListener;
     private OnDeleteChatRoomClickListener deleteListener;
-
+    private final Map<String, Integer> unreadCounts = new HashMap<>();
     public interface OnChatRoomClickListener {
         void onChatRoomClick(ChatRoom chatRoom);
     }
@@ -47,6 +49,15 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         this.chatRooms.addAll(chatRooms);
         notifyDataSetChanged();
     }
+    public void updateUnreadCount(String chatRoomId, int count) {
+        unreadCounts.put(chatRoomId, count);
+        for (int i = 0; i < chatRooms.size(); i++) {
+            if (chatRooms.get(i).getChatRoomId().equals(chatRoomId)) {
+                notifyItemChanged(i, count);
+                break;
+            }
+        }
+    }
 
     // Method to change the visibility of the button
     public void setHideButton(boolean hideButton) {
@@ -63,7 +74,9 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
 
     @Override
     public void onBindViewHolder(@NonNull ChatRoomViewHolder holder, int position) {
-        holder.bind(chatRooms.get(position));
+        ChatRoom chatRoom = chatRooms.get(position);
+        Integer unreadCount = unreadCounts.get(chatRoom.getChatRoomId());
+        holder.bind(chatRoom, unreadCount != null ? unreadCount : 0);
         if (hideButton) {
             holder.deleteChatButton.setVisibility(View.GONE); // Hide the button
         } else {
@@ -81,6 +94,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         private final TextView lastMessage;
         private final TextView lastMessageTimestamp;
         private final Button deleteChatButton;
+        private final TextView unreadCount;
 
         ChatRoomViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -88,6 +102,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
             lastMessage = itemView.findViewById(R.id.lastMessage);
             lastMessageTimestamp = itemView.findViewById(R.id.lastMessageTimestamp);
             deleteChatButton = itemView.findViewById(R.id.clearChatButton);
+            unreadCount = itemView.findViewById(R.id.unreadCount);
 
             itemView.setOnClickListener(v -> {
                 if (clickListener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
@@ -105,18 +120,47 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
             });
         }
 
-
-        void bind(ChatRoom chatRoom) {
-            chatRoomName.setText(chatRoom.isGroupChat() ? "Group: " + chatRoom.getChatRoomName() : chatRoom.getChatRoomName());
+        void bind(ChatRoom chatRoom,int count) {
+            String chatRoomNameText = chatRoom.isGroupChat() ? "Group Chat" : "Chat";
+            chatRoomNameText = chatRoomNameText + chatRoom.getChatRoomName();
+            chatRoomName.setText(chatRoomNameText);
             lastMessage.setText(chatRoom.getLastMessage());
 
             if (chatRoom.getLastMessageTimestamp() != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm, dd MMM yyyy", Locale.getDefault());
-                String dateString = sdf.format(new Date(chatRoom.getLastMessageTimestamp()));
-                lastMessageTimestamp.setText(dateString);
+                //SimpleDateFormat sdf = new SimpleDateFormat("HH:mm, dd MMM yyyy", Locale.getDefault());
+                //String dateString = sdf.format(new Date(chatRoom.getLastMessageTimestamp()));
+                //lastMessageTimestamp.setText(dateString);
+                lastMessageTimestamp.setText(getRelativeTime(chatRoom.getLastMessageTimestamp()));
             } else {
                 lastMessageTimestamp.setText("");
             }
+            if (count > 0) {
+                unreadCount.setText(String.valueOf(count));
+                unreadCount.setVisibility(View.VISIBLE);
+            } else {
+                unreadCount.setVisibility(View.GONE);
+            }
         }
     }
+    private String getRelativeTime(long timestamp) {
+        long now = System.currentTimeMillis();
+        long diff = now - timestamp;
+
+        if (diff < 60 * 1000) { // less than a minute
+            return "Just now";
+        } else if (diff < 60 * 60 * 1000) { // less than an hour
+            long minutes = diff / (60 * 1000);
+            return minutes + " min ago";
+        } else if (diff < 24 * 60 * 60 * 1000) { // less than a day
+            long hours = diff / (60 * 60 * 1000);
+            return hours + " hr ago";
+        } else if (diff < 7 * 24 * 60 * 60 * 1000) { // less than a week
+            long days = diff / (24 * 60 * 60 * 1000);
+            return days + " day" + (days > 1 ? "s" : "") + " ago";
+        } else {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+            return sdf.format(new Date(timestamp));
+        }
+    }
+
 }

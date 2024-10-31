@@ -120,13 +120,13 @@ public class SignUpActivity extends AppCompatActivity {
         if (isLoading){
             // Disable the login button and set "Logging in" text and color
             signUpButton.setEnabled(false);
-            signUpButton.setText("Logging in...");
+            signUpButton.setText("Creating account...");
             signUpButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.disabled_button)); // Gray background
             signUpButton.setTextColor(ContextCompat.getColorStateList(this, R.color.menu_item_gray));
         } else{
             // Reset the button state after login attempt is complete
             signUpButton.setEnabled(true);
-            signUpButton.setText("Login");
+            signUpButton.setText("Sign up");
             signUpButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary)); // Enabled color
             signUpButton.setTextColor(ContextCompat.getColorStateList(this, R.color.white));
         }

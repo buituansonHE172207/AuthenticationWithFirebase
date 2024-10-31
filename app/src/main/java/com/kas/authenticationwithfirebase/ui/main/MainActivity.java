@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
+import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
 import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewModel;
@@ -63,6 +64,14 @@ public class MainActivity extends AppCompatActivity {
         chatRoomViewModel.getChatRooms().observe(this, resource -> {
             if (resource.getStatus() == Resource.Status.SUCCESS) {
                 chatRoomAdapter.setChatRooms(resource.getData());
+                // Observe unread message count for each chat room
+                for (ChatRoom chatRoom : resource.getData()) {
+                    chatRoomViewModel.getUnreadMessagesCount(chatRoom.getChatRoomId()).observe(this, unreadResource -> {
+                        if (unreadResource.getStatus() == Resource.Status.SUCCESS) {
+                            chatRoomAdapter.updateUnreadCount(chatRoom.getChatRoomId(), unreadResource.getData());
+                        }
+                    });
+                }
             } else if (resource.getStatus() == Resource.Status.ERROR) {
                 // Handle error
             } else if (resource.getStatus() == Resource.Status.LOADING) {
@@ -74,16 +83,19 @@ public class MainActivity extends AppCompatActivity {
         chatRoomAdapter.setOnChatRoomClickListener(chatRoom -> {
             Intent intent = new Intent(MainActivity.this, MessageActivity.class);
             intent.putExtra("chatRoomId", chatRoom.getChatRoomId());
+            intent.putExtra("chatRoomName", chatRoom.getChatRoomName());
             startActivity(intent);
         });
 
         // Initialize Bottom Navigation View
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        // Set default highlighted item in Bottom Navigation
+        bottomNavigationView.setSelectedItemId(R.id.message);
 
         // Setup bottom navigation listener
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.new_chat) {
-                chatRoomViewModel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
+                //chatRoomViewModel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
                 return true;
             } else if (item.getItemId() == R.id.message ) {
                 return true;
