@@ -23,7 +23,8 @@
             android:layout_height="wrap_content"
             android:text="Clear Chat History"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/top_nav_text_color"/>
     </androidx.appcompat.widget.Toolbar>
 
     <!-- Chat List Section -->

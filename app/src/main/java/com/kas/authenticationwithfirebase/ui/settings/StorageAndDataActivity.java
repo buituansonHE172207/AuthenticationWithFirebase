@@ -1,6 +1,8 @@
 package com.kas.authenticationwithfirebase.ui.settings;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +24,11 @@ public class StorageAndDataActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable back button
             getSupportActionBar().setTitle("");
+
+            // Set the color of the back button
+            Drawable backArrow = getResources().getDrawable(R.drawable.baseline_arrow_back_24); // or use `AppCompatResources.getDrawable()` for better compatibility
+            backArrow.setColorFilter(getResources().getColor(R.color.top_nav_text_color), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(backArrow);
         }
 
         LinearLayout clearChatContainer = findViewById(R.id.clear_chat_container);

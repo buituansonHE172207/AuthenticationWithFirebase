@@ -10,14 +10,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="4dp"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@color/top_nav_color">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Storage and Data"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/top_nav_text_color"/>
     </androidx.appcompat.widget.Toolbar>
 
     <!-- Clear Chat History Button -->
@@ -43,7 +45,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Clear Chat History"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textColor="@color/text_color"/>
     </LinearLayout>
 
 </RelativeLayout>
