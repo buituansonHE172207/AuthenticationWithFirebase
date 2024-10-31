@@ -2,12 +2,16 @@ package com.kas.authenticationwithfirebase.ui.main;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -18,15 +22,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
+import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewModel;
 import com.kas.authenticationwithfirebase.ui.friend.FriendActivity;
+import com.kas.authenticationwithfirebase.ui.friend.FriendViewModel;
 import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
 import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
 import com.kas.authenticationwithfirebase.ui.settings.SettingsActivity;
 import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileActivity;
 import com.kas.authenticationwithfirebase.utility.Resource;
+
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -39,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout dropdownLayout;
     private ImageButton profileIcon;
     private AuthViewModel authViewModel;
+    private FriendViewModel friendViewModel;
 
     private SharedPreferences sharedPreferences;
 
@@ -115,7 +124,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         profileIcon.setOnClickListener(this::showPopupMenu);
+
+
+        //load list friends
+        dropdownLayout = findViewById(R.id.dropdownLayout);
+        // Khởi tạo ViewModel
+        friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
+
+        // Quan sát danh sách bạn bè và hiển thị
+        friendViewModel.getFriendsList().observe(this, resource -> {
+            if (resource.getStatus() == Resource.Status.SUCCESS && resource.getData() != null) {
+                populateFriendList(resource.getData());
+            }
+        });
     }
+
 
     private void showPopupMenu(View view) {
         PopupMenu popupMenu = new PopupMenu(this, view);
@@ -151,4 +174,44 @@ public class MainActivity extends AppCompatActivity {
         popupMenu.show();
     }
 
+
+    private void populateFriendList(List<User> friendsList) {
+        dropdownLayout.removeAllViews(); // Xóa các View cũ
+
+        for (User friend : friendsList) {
+            // Tạo `LinearLayout` cho từng bạn bè
+            LinearLayout friendLayout = new LinearLayout(this);
+            friendLayout.setOrientation(LinearLayout.VERTICAL);
+            friendLayout.setPadding(8, 8, 8, 8);
+            friendLayout.setGravity(Gravity.CENTER);
+
+            // Tạo ImageView cho ảnh đại diện
+            ImageView avatar = new ImageView(this);
+            avatar.setLayoutParams(new LinearLayout.LayoutParams(64, 64));
+
+//            // Sử dụng Glide để tải ảnh từ `profileImageUrl`
+//            Glide.with(this)
+//                    .load(friend.getProfileImageUrl()) // URL của ảnh
+//                    .placeholder(R.drawable.placeholder_avatar) // Ảnh tạm thời nếu chưa tải xong
+//                    .error(R.drawable.error_avatar) // Ảnh lỗi nếu tải thất bại
+//                    .into(avatar);
+
+            // Tạo TextView cho tên bạn bè
+            TextView name = new TextView(this);
+            name.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            name.setText(friend.getUsername()); // Sử dụng username từ User
+            name.setTextColor(Color.WHITE);
+            name.setTextSize(12);
+            name.setGravity(Gravity.CENTER);
+            name.setPadding(0, 4, 0, 0);
+
+            // Thêm `ImageView` và `TextView` vào `friendLayout`
+            friendLayout.addView(avatar);
+            friendLayout.addView(name);
+
+            // Thêm `friendLayout` vào `dropdownLayout`
+            dropdownLayout.addView(friendLayout);
+        }
+    }
 }
