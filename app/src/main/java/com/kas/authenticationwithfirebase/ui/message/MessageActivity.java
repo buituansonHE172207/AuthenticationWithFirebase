@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,11 +23,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.kas.authenticationwithfirebase.R;
-import com.kas.authenticationwithfirebase.data.model.Message;
+import com.kas.authenticationwithfirebase.data.entity.Message;
 import com.kas.authenticationwithfirebase.utility.CameraManager;
 import com.kas.authenticationwithfirebase.utility.FileManager;
 import com.kas.authenticationwithfirebase.utility.RequestCodeManager;
-import com.kas.authenticationwithfirebase.data.entity.Message;
 import com.kas.authenticationwithfirebase.data.model.MessageWithUserDetail;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
@@ -50,6 +50,7 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
     private ImageButton extraIcon;
     private CameraManager cameraManager;
     private FileManager fileManager;
+    private TextView chatName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
 
         chatRoomId = getIntent().getStringExtra("chatRoomId");
         recyclerView = findViewById(R.id.recycler_view_messages);
+        chatName = findViewById(R.id.chat_name);
         messageInput = findViewById(R.id.message_input);
         sendButton = findViewById(R.id.send_button);
         backButton = findViewById(R.id.backButton);
@@ -72,12 +74,16 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(messageAdapter);
 
+        chatRoomId = getIntent().getStringExtra("chatRoomId");
+        String chatRoomNameText = getIntent().getStringExtra("chatRoomName");
+        chatName.setText(chatRoomNameText);
+
         // Initialize the observer
         messagesObserver = resource -> {
             if (resource.getStatus() == Resource.Status.SUCCESS) {
                 messages.clear();
                 messages.addAll(resource.getData());
-                for (Message message : resource.getData()) {
+                for (MessageWithUserDetail message : resource.getData()) {
                     List<String> readBy = message.getReadBy();
                     messageViewModel.markMessageAsRead(chatRoomId, message.getMessageId());
                 }

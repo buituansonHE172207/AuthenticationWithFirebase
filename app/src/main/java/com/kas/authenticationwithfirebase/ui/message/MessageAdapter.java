@@ -127,7 +127,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void bind(MessageWithUserDetail message) {
             messageTextView.setText(message.getMessageContent());
             timestampTextView.setText(formatTimestamp(message.getTimestamp()));
-            senderNameTextView.setText(message.getSenderId());
+            senderNameTextView.setText(message.getUsername());
         }
     }
 

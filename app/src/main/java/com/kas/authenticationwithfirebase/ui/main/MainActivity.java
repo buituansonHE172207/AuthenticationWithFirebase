@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
-import com.kas.authenticationwithfirebase.data.model.ChatRoom;
+import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
 import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewModel;
@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         chatRoomAdapter.setOnChatRoomClickListener(chatRoom -> {
             Intent intent = new Intent(MainActivity.this, MessageActivity.class);
             intent.putExtra("chatRoomId", chatRoom.getChatRoomId());
+            intent.putExtra("chatRoomName", chatRoom.getChatRoomName());
             startActivity(intent);
         });
 
