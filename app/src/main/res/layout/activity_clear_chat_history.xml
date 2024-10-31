@@ -20,7 +20,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Storage and Data"
+            android:text="Clear Chat History"
             android:textSize="20sp"
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
@@ -36,10 +36,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/clear_chat_container"
         android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/background"
         android:paddingStart="8dp"
         android:paddingEnd="8dp" />
 
-    <!-- Clear Chat History Button -->
     <LinearLayout
         android:id="@+id/clear_chat_container"
         android:layout_width="0dp"
@@ -53,18 +53,6 @@
         android:clickable="true"
         android:focusable="true">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_clear"
-            android:contentDescription="Clear History Icon" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Clear Chat History"
-            android:textSize="16sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

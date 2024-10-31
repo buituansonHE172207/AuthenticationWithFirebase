@@ -12,7 +12,8 @@
     <color name="primary">#007A64</color>
     <color name="bottom_nav_color">#FFFFFFFF</color>
     <color name="background">#373434</color>
-    <color name="top_nav_color">#FF000000</color>
+    <color name="chat_backgound">#373434</color>
+    <color name="top_nav_color">#373434</color>
     <color name="menu_item_gray">#9E9E9E</color>
     <color name="disabled_button">#EBEBEB</color>
 </resources>
