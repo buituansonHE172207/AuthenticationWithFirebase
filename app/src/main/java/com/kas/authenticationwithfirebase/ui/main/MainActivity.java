@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
@@ -187,14 +188,14 @@ public class MainActivity extends AppCompatActivity {
 
             // Tạo ImageView cho ảnh đại diện
             ImageView avatar = new ImageView(this);
-            avatar.setLayoutParams(new LinearLayout.LayoutParams(64, 64));
+            avatar.setLayoutParams(new LinearLayout.LayoutParams(120, 120));
 
 //            // Sử dụng Glide để tải ảnh từ `profileImageUrl`
-//            Glide.with(this)
-//                    .load(friend.getProfileImageUrl()) // URL của ảnh
-//                    .placeholder(R.drawable.placeholder_avatar) // Ảnh tạm thời nếu chưa tải xong
-//                    .error(R.drawable.error_avatar) // Ảnh lỗi nếu tải thất bại
-//                    .into(avatar);
+            Glide.with(this)
+                    .load(friend.getProfileImageUrl()) // URL của ảnh
+                    .placeholder(R.drawable.default_avatar) // Ảnh tạm thời nếu chưa tải xong
+                    //.error(R.drawable.error_avatar) // Ảnh lỗi nếu tải thất bại
+                    .into(avatar);
 
             // Tạo TextView cho tên bạn bè
             TextView name = new TextView(this);
