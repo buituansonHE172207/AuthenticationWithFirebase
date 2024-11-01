@@ -13,8 +13,8 @@
     <color name="bottom_nav_color">#FFFFFFFF</color>
     <color name="background">#FF000000</color>
     <color name="chat_backgound">#FF000000</color>
-    <color name="top_nav_color">#FFFFFFFF</color>
-    <color name="top_nav_text_color">#FF000000</color>
+    <color name="top_nav_color">#423F3F</color>
+    <color name="top_nav_text_color">#FFFFFFFF</color>
     <color name="top_nav_chat_color">#FF000000</color>
     <color name="top_nav_chat_text_color">#FFFFFFFF</color>
     <color name="menu_item_gray">#9E9E9E</color>
