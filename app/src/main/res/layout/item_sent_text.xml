@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="This is a message"
-                android:textColor="@color/text_color"
+                android:textColor="@color/bubble_chat_text_recieved"
                 android:textSize="16sp" />
         </LinearLayout>
         <!-- Timestamp -->

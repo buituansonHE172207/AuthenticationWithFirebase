@@ -15,7 +15,11 @@
     <color name="chat_backgound">#F3F6f6</color>
     <color name="top_nav_color">#FF000000</color>
     <color name="top_nav_text_color">#FFFFFFFF</color>
+    <color name="top_nav_chat_color">#FFFFFFFF</color>
+    <color name="top_nav_chat_text_color">#FF000000</color>
     <color name="menu_item_gray">#9E9E9E</color>
     <color name="disabled_button">#EBEBEB</color>
     <color name="warning">#FF0000</color>
+    <color name="bubble_chat">#E3EDED</color>
+    <color name="bubble_chat_text_recieved">#FFFFFFFF</color>
 </resources>
