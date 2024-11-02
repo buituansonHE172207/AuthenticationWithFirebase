@@ -49,22 +49,24 @@
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/userAvatar"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
                 android:layout_gravity="center"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_account"
-                app:shapeAppearanceOverlay="@style/circleImageView"
-                app:tint="@color/primary" />
+                android:padding="10dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_avatar"
+                app:shapeAppearanceOverlay="@style/circleImageView" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/updateAvatar"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
                 android:layout_gravity="end|bottom"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="10dp"
+                android:background="#31363F"
+                android:padding="15dp"
+                android:scaleType="centerInside"
                 android:src="@drawable/baseline_camera_alt_24"
+                app:shapeAppearanceOverlay="@style/circleImageView"
                 app:tint="@color/white" />
         </FrameLayout>
 
@@ -122,6 +124,7 @@
                     app:tint="@color/white" />
 
                 <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/chatBox"
                     android:layout_width="70dp"
                     android:layout_height="70dp"
                     android:layout_gravity="center"
@@ -131,15 +134,15 @@
                     app:shapeAppearanceOverlay="@style/circleImageView"
                     app:tint="@color/white" />
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_gravity="center"
-                    android:background="#31363F"
-                    android:padding="10dp"
-                    android:src="@drawable/baseline_more_horiz_24"
-                    app:shapeAppearanceOverlay="@style/circleImageView"
-                    app:tint="@color/white" />
+                <!--                <com.google.android.material.imageview.ShapeableImageView-->
+                <!--                    android:layout_width="70dp"-->
+                <!--                    android:layout_height="70dp"-->
+                <!--                    android:layout_gravity="center"-->
+                <!--                    android:background="#31363F"-->
+                <!--                    android:padding="10dp"-->
+                <!--                    android:src="@drawable/baseline_more_horiz_24"-->
+                <!--                    app:shapeAppearanceOverlay="@style/circleImageView"-->
+                <!--                    app:tint="@color/white" />-->
             </LinearLayout>
         </HorizontalScrollView>
 
@@ -170,42 +173,120 @@
 
                     <TextView
                         android:id="@+id/userDisplayName"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="40dp"
+                        android:layout_marginStart="30dp"
+                        android:layout_marginEnd="30dp"
+                        android:text="Binh Dep trai 123"
+                        android:textSize="25dp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/userDisplayNameEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_marginEnd="30dp"
+                        android:inputType="textEmailAddress"
                         android:text="Binh Dep trai 123"
                         android:textSize="25dp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
+                <!--                <LinearLayout-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:layout_marginTop="20dp"-->
+                <!--                    android:orientation="vertical">-->
+
+                <!--                    <TextView-->
+                <!--                        android:id="@+id/displayEmail"-->
+                <!--                        android:layout_width="wrap_content"-->
+                <!--                        android:layout_height="wrap_content"-->
+                <!--                        android:layout_marginStart="30dp"-->
+                <!--                        android:layout_marginBottom="5dp"-->
+                <!--                        android:text="Email Address"-->
+                <!--                        android:textSize="20dp" />-->
+
+                <!--                    <TextView-->
+                <!--                        android:id="@+id/userDisplayEmail"-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="wrap_content"-->
+                <!--                        android:layout_marginStart="30dp"-->
+                <!--                        android:layout_marginEnd="30dp"-->
+                <!--                        android:text="123@gmail.com"-->
+                <!--                        android:textSize="25dp"-->
+                <!--                        android:textStyle="bold" />-->
+
+                <!--                    <EditText-->
+                <!--                        android:id="@+id/userDisplayEmailEdit"-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="wrap_content"-->
+                <!--                        android:layout_marginStart="30dp"-->
+                <!--                        android:layout_marginEnd="30dp"-->
+                <!--                        android:text="123@gmail.com"-->
+                <!--                        android:textSize="25dp"-->
+                <!--                        android:textStyle="bold" />-->
+                <!--                </LinearLayout>-->
+
                 <LinearLayout
+                    android:id="@+id/pwdLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/displayEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="30dp"
                         android:layout_marginBottom="5dp"
-                        android:text="Email Address"
+                        android:text="Password"
                         android:textSize="20dp" />
 
-                    <TextView
-                        android:id="@+id/userDisplayEmail"
-                        android:layout_width="wrap_content"
+                    <EditText
+                        android:id="@+id/password"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="40dp"
-                        android:text="123@gmail.com"
+                        android:layout_marginStart="30dp"
+                        android:layout_marginEnd="30dp"
+                        android:inputType="textPassword"
                         android:textSize="25dp"
                         android:textStyle="bold" />
                 </LinearLayout>
+
                 <LinearLayout
+                    android:id="@+id/reEnterPwdLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="Re-enter Password"
+                        android:textSize="20dp" />
+
+                    <EditText
+                        android:id="@+id/reEnterPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="30dp"
+                        android:layout_marginEnd="30dp"
+                        android:inputType="textPassword"
+                        android:textSize="25dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:inputType="textPassword"
                     android:orientation="vertical">
 
                     <TextView
@@ -235,7 +316,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_margin="30dp"
                 android:background="@drawable/button_rounded"
-                android:text="Edit Profile"
+                android:text="Save Profile"
                 android:textColor="@color/white" />
         </RelativeLayout>
     </LinearLayout>
