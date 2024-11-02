@@ -69,5 +69,9 @@ public class FileManager {
                 .setMediaType(new PickVisualMedia.SingleMimeType(mimeType))
                 .build());
     }
+
+    public static String getFileNameFromUri(Uri uri) {
+        return uri.getLastPathSegment();
+    }
 }
 

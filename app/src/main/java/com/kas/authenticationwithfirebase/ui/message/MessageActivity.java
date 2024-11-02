@@ -36,18 +36,17 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MessageActivity extends AppCompatActivity implements CameraManager.CamaraCallBack,FileManager.FilePickerCallback{
+public class MessageActivity extends AppCompatActivity implements CameraManager.CamaraCallBack, FileManager.FilePickerCallback {
 
     private MessageViewModel messageViewModel;
     private MessageAdapter messageAdapter;
     private RecyclerView recyclerView;
     private TextInputEditText messageInput;
-    private ImageButton sendButton, backButton;
+    private ImageButton sendButton, backButton, extraIcon;
     private List<MessageWithUserDetail> messages = new ArrayList<>();
     private String chatRoomId;
     private Observer<Resource<List<MessageWithUserDetail>>> messagesObserver;
 
-    private ImageButton extraIcon;
     private CameraManager cameraManager;
     private FileManager fileManager;
     private TextView chatName;
@@ -57,61 +56,77 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
 
+        // Initialize UI components
         chatRoomId = getIntent().getStringExtra("chatRoomId");
         recyclerView = findViewById(R.id.recycler_view_messages);
         chatName = findViewById(R.id.chat_name);
         messageInput = findViewById(R.id.message_input);
         sendButton = findViewById(R.id.send_button);
         backButton = findViewById(R.id.backButton);
+        extraIcon = findViewById(R.id.btnExtra);
+
+        // Set up event listeners
         backButton.setOnClickListener(v -> finish());
-        extraIcon = (ImageButton) findViewById(R.id.btnExtra);
         extraIcon.setOnClickListener(this::showPopupMenu);
+
+        // Initialize CameraManager and FileManager
         cameraManager = new CameraManager(this, this);
         fileManager = new FileManager(this, this);
 
+        // ViewModel and Adapter Setup
         messageViewModel = new ViewModelProvider(this).get(MessageViewModel.class);
         messageAdapter = new MessageAdapter(messages, messageViewModel.getCurrentUserId());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(messageAdapter);
 
-        chatRoomId = getIntent().getStringExtra("chatRoomId");
+        // Get Chat Room Name
         String chatRoomNameText = getIntent().getStringExtra("chatRoomName");
         chatName.setText(chatRoomNameText);
 
-        // Initialize the observer
+        // Initialize the observer for messages
+        setupMessagesObserver();
+
+        // Send Message
+        sendButton.setOnClickListener(v -> sendMessage());
+    }
+
+    private void setupMessagesObserver() {
         messagesObserver = resource -> {
             if (resource.getStatus() == Resource.Status.SUCCESS) {
                 messages.clear();
                 messages.addAll(resource.getData());
-                for (MessageWithUserDetail message : resource.getData()) {
-                    List<String> readBy = message.getReadBy();
-                    messageViewModel.markMessageAsRead(chatRoomId, message.getMessageId());
-                }
                 messageAdapter.notifyDataSetChanged();
                 if (!messages.isEmpty()) {
                     // Scroll to the last message
                     recyclerView.smoothScrollToPosition(messages.size() - 1);
                 }
+                markMessagesAsRead();
+            } else if (resource.getStatus() == Resource.Status.ERROR) {
+                Toast.makeText(this, "Failed to load messages: " + resource.getMessage(), Toast.LENGTH_SHORT).show();
             }
         };
+    }
 
-        // Send Message
-        sendButton.setOnClickListener(v -> {
-            String messageContent = messageInput.getText().toString();
-            if (!messageContent.isEmpty()) {
-                Message message = new Message(
-                        null,
-                        chatRoomId,
-                        messageViewModel.getCurrentUserId(),
-                        messageContent,
-                        "text",
-                        System.currentTimeMillis(),
-                        null);
-                messageViewModel.sendMessage(chatRoomId, message);
-                messageInput.setText("");
-            }
-        });
+    private void markMessagesAsRead() {
+        for (MessageWithUserDetail message : messages) {
+            messageViewModel.markMessageAsRead(chatRoomId, message.getMessageId());
+        }
+    }
 
+    private void sendMessage() {
+        String messageContent = messageInput.getText().toString();
+        if (!messageContent.isEmpty()) {
+            Message message = new Message(
+                    null,
+                    chatRoomId,
+                    messageViewModel.getCurrentUserId(),
+                    messageContent,
+                    "text",
+                    System.currentTimeMillis(),
+                    null);
+            messageViewModel.sendTextMessage(chatRoomId, message);
+            messageInput.setText("");
+        }
     }
 
     @Override
@@ -129,15 +144,10 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
 
     @SuppressLint("RestrictedApi")
     private void showPopupMenu(View view) {
-        // Create a MenuBuilder instead of PopupMenu
         MenuBuilder menuBuilder = new MenuBuilder(this);
         getMenuInflater().inflate(R.menu.chat_extra, menuBuilder);
-
-        // Create the MenuPopupHelper with the MenuBuilder
         MenuPopupHelper menuPopupHelper = new MenuPopupHelper(this, menuBuilder, view);
-        menuPopupHelper.setForceShowIcon(true);  // Show icons in the popup menu
-
-        // Set the menu item click listener
+        menuPopupHelper.setForceShowIcon(true);
         menuBuilder.setCallback(new MenuBuilder.Callback() {
             @Override
             public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
@@ -148,32 +158,37 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
                 } else if (itemId == R.id.btnAttachment) {
                     fileManager.pickImageAndVideo();
                     return true;
-                } else if (itemId == R.id.btnMic) {
-                    // Handle settings action, e.g., open settings activity
-                    return true;
                 }
                 return false;
             }
 
             @Override
-            public void onMenuModeChange(MenuBuilder menu) {
-                // Not needed in this case
-            }
+            public void onMenuModeChange(MenuBuilder menu) { }
         });
-
-        // Show the popup menu
         menuPopupHelper.show();
     }
 
     @Override
     public void onMediaCaptured(Uri mediaUri, boolean isVideo) {
-        if (isVideo) {
-            // Handle video capture (if needed)
-            Toast.makeText(this, "Video captured: " + mediaUri.toString(), Toast.LENGTH_SHORT).show();
+        String messageType = isVideo ? "video" : "image";
+        sendMediaMessage(mediaUri, messageType);
+    }
+
+    private void sendMediaMessage(Uri mediaUri, String messageType) {
+        if (mediaUri != null) {
+            Message message = new Message(
+                    null,
+                    chatRoomId,
+                    messageViewModel.getCurrentUserId(),
+                    mediaUri.toString(),
+                    messageType,
+                    System.currentTimeMillis(),
+                    null
+            );
+            messageViewModel.sendImageMessage(chatRoomId, mediaUri, message);
+            Toast.makeText(this, messageType + " sent!", Toast.LENGTH_SHORT).show();
         } else {
-            // Handle photo capture
-            Toast.makeText(this, "Photo captured: " + mediaUri.toString(), Toast.LENGTH_SHORT).show();
-            // Optionally, you can send the photo as a message or handle it accordingly
+            Toast.makeText(this, "Failed to send " + messageType, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -187,25 +202,22 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == RequestCodeManager.REQUEST_CODE_IMAGE_CAPTURE) {
-                this.onMediaCaptured(cameraManager.getCurrentMediaUri(), false); // It's an image
+                this.onMediaCaptured(cameraManager.getCurrentMediaUri(), false);
             } else if (requestCode == RequestCodeManager.REQUEST_CODE_VIDEO_CAPTURE) {
-                this.onMediaCaptured(cameraManager.getCurrentMediaUri(), true); // It's a video
+                this.onMediaCaptured(cameraManager.getCurrentMediaUri(), true);
             }
         } else {
             this.onError("Media capture failed or canceled.");
         }
     }
 
-
     @Override
     public void onFilePicked(Uri uri) {
-        Toast.makeText(this, "File picked: " + uri.toString(), Toast.LENGTH_SHORT).show();
-
+        sendMediaMessage(uri, "image");
     }
 
     @Override
     public void onNoFileSelected() {
         Toast.makeText(this, "No file selected.", Toast.LENGTH_SHORT).show();
-
     }
 }

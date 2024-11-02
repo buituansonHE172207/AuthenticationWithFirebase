@@ -3,6 +3,7 @@ package com.kas.authenticationwithfirebase.data.repository;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -25,6 +26,9 @@ public class CloudStorageRepository {
 
     public LiveData<Resource<String>> uploadFile(String folderName, String fileName, Uri fileUri) {
         MutableLiveData<Resource<String>> result = new MutableLiveData<>();
+        //log the input
+        Log.d("CloudStorageRepository", "Uploading file: " + fileName + " to folder: " + folderName);
+
 
         StorageReference fileRef = firebaseStorage.getReference().child(folderName + "/" + fileName);
         fileRef.putFile(fileUri)
@@ -32,7 +36,14 @@ public class CloudStorageRepository {
                     result.setValue(Resource.success(uri.toString()));
                 }))
                 .addOnFailureListener(e -> result.setValue(Resource.error(e.getMessage(), null)));
-
+        // log if failed
+        if (result.getValue() != null && result.getValue().getStatus() == Resource.Status.ERROR) {
+            Log.d("CloudStorageRepository", "Failed to upload file: " + result.getValue().getMessage());
+        }
+        // log if success]
+        if (result.getValue() != null && result.getValue().getStatus() == Resource.Status.SUCCESS) {
+            Log.d("CloudStorageRepository", "File uploaded successfully: " + result.getValue().getData());
+        }
         return result;
     }
 
