@@ -42,8 +42,8 @@ public class AuthViewModel extends ViewModel {
     }
 
     // Change Password
-    public LiveData<Resource<Boolean>> changePassword(String oldPassword, String newPassword) {
-        return authRepository.changePassword(oldPassword);
+    public LiveData<Resource<Boolean>> changePassword(String newPassword) {
+        return authRepository.changePassword(newPassword);
     }
 
     // Is User Logged In
