@@ -91,7 +91,7 @@ public class UserRepository {
         String userId = user.getUid();
         DocumentReference userRef = firebaseFirestore.collection(USERS_COLLECTION).document(userId);
 
-        userRef.update("imageUrl", imageUrl)
+        userRef.update("profileImageUrl", imageUrl)
                 .addOnSuccessListener(aVoid -> result.setValue(Resource.success(imageUrl)))
                 .addOnFailureListener(e ->
                         result.setValue(Resource.error(e.getMessage(), null)));

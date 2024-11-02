@@ -1,11 +1,14 @@
 package com.kas.authenticationwithfirebase.ui.userProfile;
 
+import android.net.Uri;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
+import com.kas.authenticationwithfirebase.data.repository.CloudStorageRepository;
 import com.kas.authenticationwithfirebase.data.repository.UserRepository;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
@@ -16,12 +19,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class UserProfileViewModel extends ViewModel {
     private final UserRepository userRepository;
+    private final CloudStorageRepository cloudStorageRepository;
     private final String userId;
 
     @Inject
-    public UserProfileViewModel(UserRepository userRepository, AuthRepository authRepository) {
+    public UserProfileViewModel(UserRepository userRepository, AuthRepository authRepository, CloudStorageRepository cloudStorageRepository) {
         this.userRepository = userRepository;
         this.userId = authRepository.getCurrentUserId();
+        this.cloudStorageRepository = cloudStorageRepository;
     }
 
     private <T> LiveData<Resource<T>> checkUserLoggedIn(LiveData<Resource<T>> successLiveData) {
@@ -50,5 +55,12 @@ public class UserProfileViewModel extends ViewModel {
 
     public LiveData<Resource<String>> updateUserImage(String imageUrl) {
         return checkUserLoggedIn(userRepository.updateUserImage(imageUrl));
+    }
+
+    public LiveData<Resource<String>> updateUserImageCloud(String folderName, String fileName, Uri fileUri) {
+        return checkUserLoggedIn(cloudStorageRepository.uploadFile(folderName, fileName, fileUri));
+    }
+    public LiveData<Resource<String>> getUserImageCloud(String folderName, String fileName) {
+        return checkUserLoggedIn(cloudStorageRepository.getFileUrl(folderName, fileName));
     }
 }

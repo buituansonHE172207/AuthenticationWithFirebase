@@ -20,6 +20,10 @@ public class User {
         this.token = token;
     }
 
+    public User(String username){
+        this.username = username;
+    }
+
     public User() {
     }
 
