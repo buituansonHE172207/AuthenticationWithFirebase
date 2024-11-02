@@ -1,8 +1,11 @@
 package com.kas.authenticationwithfirebase.ui.main;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,6 +18,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton profileIcon;
     private AuthViewModel authViewModel;
     private FriendViewModel friendViewModel;
+    private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
 
     private SharedPreferences sharedPreferences;
 
@@ -63,6 +69,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Kiểm tra và yêu cầu quyền thông báo nếu cần thiết
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFICATION_PERMISSION);
+            }
+        }
         rvChatRooms = findViewById(R.id.rvChatRooms);
         profileIcon = findViewById(R.id.profile_icon);
         chatRoomViewModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
@@ -138,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 populateFriendList(resource.getData());
             }
         });
+
     }
 
 
