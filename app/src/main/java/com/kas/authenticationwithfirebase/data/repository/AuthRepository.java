@@ -104,7 +104,7 @@ public class AuthRepository {
                 });
     }
 
-    // Change password
+    // Reset password
     public LiveData<Resource<Boolean>> resetPassword(String email) {
         MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
 
@@ -116,6 +116,26 @@ public class AuthRepository {
                         result.setValue(Resource.error(task.getException().getMessage(), false));
                     }
                 });
+        return result;
+    }
+
+    // Change password
+    public LiveData<Resource<Boolean>> changePassword(String newPassword) {
+        MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
+
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+            user.updatePassword(newPassword)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            result.setValue(Resource.success(true));
+                        } else {
+                            result.setValue(Resource.error(task.getException().getMessage(), false));
+                        }
+                    });
+        } else {
+            result.setValue(Resource.error("User not logged in", false));
+        }
         return result;
     }
 
