@@ -70,7 +70,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String token) {
         // Update token in Firestore for push notifications
-        FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
+        FirebaseFirestore.getInstance().collection("users")
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
                 .update("token", token)
                 .addOnSuccessListener(aVoid -> Log.d("FCM", "Token updated successfully"))
                 .addOnFailureListener(e -> Log.e("FCM", "Failed to update token", e));
