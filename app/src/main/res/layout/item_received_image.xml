@@ -64,17 +64,18 @@
                     android:adjustViewBounds="true"
                     android:src="@drawable/big_image" />
             </androidx.cardview.widget.CardView>
+            <!-- Timestamp -->
+            <TextView
+                android:id="@+id/tvTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="6dp"
+                android:text="12:45 PM"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Timestamp -->
-        <TextView
-            android:id="@+id/tvTimestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="6dp"
-            android:text="12:45 PM"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="12sp" />
+
     </LinearLayout>
 </LinearLayout>
