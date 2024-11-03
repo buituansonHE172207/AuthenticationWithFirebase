@@ -148,13 +148,18 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     // Image ViewHolder classes
     static class SentImageViewHolder extends RecyclerView.ViewHolder {
         ImageView messageImageView;
+        TextView timestampTextView;
 
         SentImageViewHolder(View itemView) {
             super(itemView);
             messageImageView = itemView.findViewById(R.id.sent_image);
+            timestampTextView = itemView.findViewById(R.id.tvTimestamp);
+            timestampTextView.setTextSize(textSize*3/4);
         }
 
         void bind(MessageWithUserDetail message) {
+            timestampTextView.setText(formatTimestamp(message.getTimestamp()));
+
             Glide.
                     with(itemView.getContext())
                     .load(message.getMessageContent())
@@ -164,14 +169,32 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     static class ReceivedImageViewHolder extends RecyclerView.ViewHolder {
         ImageView messageImageView;
+        TextView timestampTextView;
+
+        TextView senderNameTextView;
+        ImageView profileImageView;
+
 
         ReceivedImageViewHolder(View itemView) {
             super(itemView);
             messageImageView = itemView.findViewById(R.id.received_image);
+            timestampTextView = itemView.findViewById(R.id.tvTimestamp);
+            timestampTextView.setTextSize(textSize*3/4);
+            senderNameTextView = itemView.findViewById(R.id.user_chat_name);
+            profileImageView = itemView.findViewById(R.id.profile_image);
+
         }
 
         void bind(MessageWithUserDetail message) {
+            timestampTextView.setText(formatTimestamp(message.getTimestamp()));
+            senderNameTextView.setText(message.getUsername());
+
             Glide.with(itemView.getContext()).load(message.getMessageContent()).into(messageImageView);
+            Glide
+                    .with(itemView.getContext())
+                    .load(message.getProfileImageUrl()) // Ensure profile image URL is provided
+                    .placeholder(R.drawable.default_avatar) // Placeholder image if URL is missing
+                    .into(profileImageView);
         }
     }
 
