@@ -34,6 +34,7 @@ import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
 import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
 import com.kas.authenticationwithfirebase.ui.settings.SettingsActivity;
 import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileActivity;
+import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileViewModel;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.List;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton profileIcon;
     private AuthViewModel authViewModel;
     private FriendViewModel friendViewModel;
-
+    private UserProfileViewModel userViewModel;
     private SharedPreferences sharedPreferences;
     private MainFriendAdapter friendAdapter;
     private ChatRoomAdapter chatRoomAdapter;
@@ -88,6 +89,22 @@ public class MainActivity extends AppCompatActivity {
                     // Show loading
                 }
             });
+        });
+
+        userViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
+        userViewModel.getUserProfile().observe(this, resource -> {
+            if (resource.getStatus() == Resource.Status.SUCCESS) {
+                // Set the profile image directly
+                String profileImageUrl = resource.getData().getProfileImageUrl();
+                Glide.with(this)
+                        .load(profileImageUrl)
+                        .placeholder(R.drawable.default_avatar)
+                        .into(profileIcon);
+            } else if (resource.getStatus() == Resource.Status.ERROR) {
+                // Handle error
+            } else if (resource.getStatus() == Resource.Status.LOADING) {
+                // Show loading
+            }
         });
 
         rvChatRooms.setAdapter(chatRoomAdapter);

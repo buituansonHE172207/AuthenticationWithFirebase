@@ -26,7 +26,6 @@ public class MainFriendAdapter extends RecyclerView.Adapter<MainFriendAdapter.Ma
     }
 
     public void setFriendList(List<User> friendList) {
-        Log.d("MainFriendAdapter", "setFriendList called. Size: " + (friendList != null ? friendList.size() : "null"));
         this.friendList = friendList;
         notifyDataSetChanged(); // Notify the adapter that the data has changed
     }
@@ -41,14 +40,12 @@ public class MainFriendAdapter extends RecyclerView.Adapter<MainFriendAdapter.Ma
     @Override
     public void onBindViewHolder(@NonNull MainFriendViewHolder holder, int position) {
         User friend = friendList.get(position);
-        Log.d("MainFriendAdapter", "onBindViewHolder called. Position: " + position + ", User: " + friend);
         holder.bind(friend);
     }
 
     @Override
     public int getItemCount() {
         int size = friendList != null ? friendList.size() : 0;
-        Log.d("MainFriendAdapter", "getItemCount called. Size: " + size);
         return size;
     }
 
@@ -71,14 +68,12 @@ public class MainFriendAdapter extends RecyclerView.Adapter<MainFriendAdapter.Ma
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && onFriendClickListener != null) {
                     User clickedFriend = friendList.get(position);
-                    Log.d("MainFriendAdapter", "Friend clicked: " + clickedFriend);
                     onFriendClickListener.onFriendClick(clickedFriend);
                 }
             });
         }
 
         void bind(User friend) {
-            Log.d("MainFriendAdapter", "bind called. User: " + friend);
             Glide.with(itemView.getContext())
                     .load(friend.getProfileImageUrl())
                     .placeholder(R.drawable.default_avatar)

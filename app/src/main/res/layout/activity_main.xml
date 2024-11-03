@@ -19,6 +19,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Top Toolbar -->
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -35,23 +36,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
-                android:paddingBottom="16dp"
                 android:paddingLeft="16dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp">
 
                 <ImageView
                     android:id="@+id/search_icon"
                     android:layout_width="76dp"
                     android:layout_height="76dp"
                     android:scaleType="fitCenter"
-                    app:tint="@color/primary"
-                    android:src="@drawable/message_icon2" />
+                    android:src="@drawable/message_icon2"
+                    app:tint="@color/primary" />
 
                 <ImageView
                     android:layout_width="72dp"
                     android:layout_height="72dp"
-                    android:paddingTop="52dp"
                     android:layout_gravity="center"
+                    android:paddingTop="52dp"
                     android:src="@drawable/icon"
                     app:tint="@color/top_nav_text_color" />
             </FrameLayout>
@@ -68,14 +69,30 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <ImageButton
-                android:id="@+id/profile_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <androidx.cardview.widget.CardView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_gravity="end"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="16dp"
-                android:src="@drawable/baseline_account_circle_24_light" />
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                app:cardBackgroundColor="@color/primary"
+                app:cardCornerRadius="40dp">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_gravity="center"
+                    app:cardCornerRadius="40dp">
+
+                    <ImageButton
+                        android:id="@+id/profile_icon"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_user_placeholder" />
+                </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
         </com.google.android.material.appbar.MaterialToolbar>
 
