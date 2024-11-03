@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
@@ -72,17 +73,30 @@ public class ClearChatHistoryActivity extends AppCompatActivity {
             }
         });
 
-        // Set up delete listener to use MessageViewModel
+// Set up delete listener to use MessageViewModel
         chatRoomAdapter.setOnDeleteChatRoomClickListener(chatRoom -> {
-            messageViewModel.deleteMessages(chatRoom.getChatRoomId()).observe(this, deleteResult -> {
-                if (deleteResult.getStatus() == Resource.Status.SUCCESS) {
-                    Toast.makeText(this, "Messages in chat room cleared successfully", Toast.LENGTH_SHORT).show();
-                    refreshChatRooms();
-                } else if (deleteResult.getStatus() == Resource.Status.ERROR) {
-                    Toast.makeText(this, "Failed to clear messages: " + deleteResult.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            // Show a confirmation dialog before deletion
+            new AlertDialog.Builder(this)
+                    .setTitle("Delete Chat Room")
+                    .setMessage("Are you sure you want to clear the chat history for this room?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        // Proceed with deleting messages after confirmation
+                        messageViewModel.deleteMessages(chatRoom.getChatRoomId()).observe(this, deleteResult -> {
+                            if (deleteResult.getStatus() == Resource.Status.SUCCESS) {
+                                Toast.makeText(this, "Messages in chat room cleared successfully", Toast.LENGTH_SHORT).show();
+                                refreshChatRooms();
+                            } else if (deleteResult.getStatus() == Resource.Status.ERROR) {
+                                Toast.makeText(this, "Failed to clear messages: " + deleteResult.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // Dismiss the dialog if the user cancels the action
+                        dialog.dismiss();
+                    })
+                    .show();
         });
+
     }
 
     private void refreshChatRooms() {
