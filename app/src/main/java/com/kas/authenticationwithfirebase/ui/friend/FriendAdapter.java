@@ -91,5 +91,6 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             friendEmailTextView.setText(friend.getEmail());
             friendStatusTextView.setText(friend.getStatus());
         }
+
     }
 }

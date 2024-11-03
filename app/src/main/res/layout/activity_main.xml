@@ -11,12 +11,12 @@
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#121212"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="#121212">
+        app:layout_constraintTop_toTopOf="parent">
 
         <!-- Top Toolbar -->
         <com.google.android.material.appbar.MaterialToolbar
@@ -30,14 +30,32 @@
             app:contentInsetRight="0dp"
             app:contentInsetStart="0dp">
 
-            <ImageButton
-                android:id="@+id/search_icon"
+
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="16dp"
-                android:src="@drawable/search" />
+                android:paddingBottom="16dp"
+                android:paddingLeft="16dp"
+                android:paddingTop="8dp">
+
+                <ImageView
+                    android:id="@+id/search_icon"
+                    android:layout_width="76dp"
+                    android:layout_height="76dp"
+                    android:scaleType="fitCenter"
+                    app:tint="@color/primary"
+                    android:src="@drawable/message_icon2" />
+
+                <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:paddingTop="52dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/icon"
+                    app:tint="@color/top_nav_text_color" />
+            </FrameLayout>
+
 
             <TextView
                 android:id="@+id/toolbar_title"
@@ -61,128 +79,13 @@
 
         </com.google.android.material.appbar.MaterialToolbar>
 
-        <!-- Status Section -->
-<!--        <HorizontalScrollView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:paddingStart="8dp"-->
-<!--            android:paddingTop="8dp"-->
-<!--            android:paddingEnd="8dp"-->
-<!--            android:paddingBottom="0dp"-->
-<!--            android:scrollbars="none">-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:orientation="horizontal">-->
-<!--                &lt;!&ndash; Repeat this layout for additional status avatars &ndash;&gt;-->
-<!--                <LinearLayout-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="vertical"-->
-<!--                    android:paddingStart="8dp"-->
-<!--                    android:paddingTop="8dp"-->
-<!--                    android:paddingEnd="8dp"-->
-<!--                    android:paddingBottom="0dp"-->
-<!--                    android:gravity="center">-->
-
-<!--                    <ImageView-->
-<!--                        android:layout_width="64dp"-->
-<!--                        android:layout_height="64dp"-->
-<!--                        android:src="@drawable/message_icon"-->
-<!--                        android:layout_gravity="center"-->
-<!--                        android:background="@drawable/message_icon"-->
-<!--                        app:tint="@color/primary"-->
-<!--                        android:backgroundTint="@color/primary"-->
-<!--                        android:padding="4dp" />-->
-
-<!--                    <TextView-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:text="My status"-->
-<!--                        android:textColor="#FFF"-->
-<!--                        android:textSize="12sp"-->
-<!--                        android:layout_marginTop="4dp"-->
-<!--                        android:gravity="center" />-->
-<!--                </LinearLayout>-->
-<!--                <LinearLayout-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="vertical"-->
-<!--                    android:paddingStart="8dp"-->
-<!--                    android:paddingTop="8dp"-->
-<!--                    android:paddingEnd="8dp"-->
-<!--                    android:paddingBottom="0dp"-->
-<!--                    android:gravity="center">-->
-
-<!--                    <ImageView-->
-<!--                        android:layout_width="64dp"-->
-<!--                        android:layout_height="64dp"-->
-<!--                        android:src="@drawable/message_icon"-->
-<!--                        android:layout_gravity="center"-->
-<!--                        android:background="@drawable/message_icon"-->
-<!--                        app:tint="@color/primary"-->
-<!--                        android:backgroundTint="@color/primary"-->
-<!--                        android:padding="4dp" />-->
-
-<!--                    <TextView-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:text="Friend 1"-->
-<!--                        android:textColor="#FFF"-->
-<!--                        android:textSize="12sp"-->
-<!--                        android:layout_marginTop="4dp"-->
-<!--                        android:gravity="center" />-->
-<!--                </LinearLayout>-->
-<!--                <LinearLayout-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="vertical"-->
-<!--                    android:paddingStart="8dp"-->
-<!--                    android:paddingTop="8dp"-->
-<!--                    android:paddingEnd="8dp"-->
-<!--                    android:paddingBottom="0dp"-->
-<!--                    android:gravity="center">-->
-
-<!--                    <ImageView-->
-<!--                        android:layout_width="64dp"-->
-<!--                        android:layout_height="64dp"-->
-<!--                        android:src="@drawable/message_icon"-->
-<!--                        android:layout_gravity="center"-->
-<!--                        android:background="@drawable/message_icon"-->
-<!--                        app:tint="@color/primary"-->
-<!--                        android:backgroundTint="@color/primary"-->
-<!--                        android:padding="4dp" />-->
-
-<!--                    <TextView-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:text="Friend 2"-->
-<!--                        android:textColor="#FFF"-->
-<!--                        android:textSize="12sp"-->
-<!--                        android:layout_marginTop="4dp"-->
-<!--                        android:gravity="center" />-->
-<!--                </LinearLayout>-->
-<!--            </LinearLayout>-->
-<!--        </HorizontalScrollView>-->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/dropdownLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="8dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="0dp"
-            android:scrollbars="none">
-
-            <LinearLayout
-                android:id="@+id/dropdownLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <!-- Bạn bè sẽ được thêm vào đây -->
-            </LinearLayout>
-        </HorizontalScrollView>
-
+            android:orientation="horizontal">
+            <!-- Bạn bè sẽ được thêm vào đây -->
+        </androidx.recyclerview.widget.RecyclerView>
 
         <!-- Chat List Section -->
         <androidx.recyclerview.widget.RecyclerView
@@ -194,19 +97,19 @@
             android:backgroundTint="@color/background"
             android:paddingStart="8dp"
             android:paddingTop="23dp"
-            android:paddingEnd="8dp"/>
+            android:paddingEnd="8dp" />
         <!-- Bottom Navigation Bar -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/bottom_nav_color"
+            android:elevation="115dp"
+            android:paddingTop="8dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark"
             app:itemIconTint="@color/bnv_tab_item_foreground"
             app:itemTextColor="@color/bnv_tab_item_foreground"
-            app:menu="@menu/bottom_nav_menu"
             app:labelVisibilityMode="labeled"
-            android:elevation="115dp"
-            android:paddingTop="8dp"/>
+            app:menu="@menu/bottom_nav_menu" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

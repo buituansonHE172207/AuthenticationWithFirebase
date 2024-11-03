@@ -65,6 +65,7 @@ public class FriendActivity extends AppCompatActivity {
                 if (resource.getStatus() == Resource.Status.SUCCESS) {
                     Intent intent = new Intent(FriendActivity.this, MessageActivity.class);
                     intent.putExtra("chatRoomId", resource.getData().getChatRoomId());
+                    intent.putExtra("chatRoomName", resource.getData().getChatRoomName());
                     startActivity(intent);
                 } else if (resource.getStatus() == Resource.Status.ERROR) {
                     // Handle error
