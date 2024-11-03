@@ -1,11 +1,13 @@
 package com.kas.authenticationwithfirebase.ui.main;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -13,8 +15,11 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -179,39 +184,50 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("RestrictedApi")
 
     private void showPopupMenu(View view) {
-        PopupMenu popupMenu = new PopupMenu(this, view);
-        popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
+        // Create a MenuBuilder instance
+        MenuBuilder menuBuilder = new MenuBuilder(this);
+        // Inflate your menu resource into the MenuBuilder
+        getMenuInflater().inflate(R.menu.profile_menu, menuBuilder);
 
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.btnLogout) {
-                authViewModel.logoutUser();
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-                return true;
-            } else if (itemId == R.id.btnSettings) {
-                // Open settings activity
-                // Handle settings action, e.g., open settings activity
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
+        // Create a MenuPopupHelper to display the menu
+        MenuPopupHelper menuPopupHelper = new MenuPopupHelper(this, menuBuilder, view);
+        menuPopupHelper.setForceShowIcon(true);  // Force icons to be shown
 
-                return true;
-            } else if (itemId == R.id.btnProfile) {
-                // Open settings activity
-                // Handle settings action, e.g., open settings activity
-                Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
-                startActivity(intent);
-
-                return true;
+        // Set a callback to handle menu item clicks
+        menuBuilder.setCallback(new MenuBuilder.Callback() {
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.btnLogout) {
+                    authViewModel.logoutUser();
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                    return true;
+                } else if (itemId == R.id.btnSettings) {
+                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.btnProfile) {
+                    Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+                return false;
             }
-            return false;
+
+            @Override
+            public void onMenuModeChange(MenuBuilder menu) {
+                // No need to implement
+            }
         });
 
-        popupMenu.show();
+        // Show the popup menu
+        menuPopupHelper.show();
     }
 
     private void setupFriendDropdown() {
