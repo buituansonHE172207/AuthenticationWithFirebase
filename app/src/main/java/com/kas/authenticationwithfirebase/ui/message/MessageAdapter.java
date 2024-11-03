@@ -137,7 +137,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             senderNameTextView.setText(message.getUsername());
 
             // Load profile image using Glide
-            Glide.with(itemView.getContext())
+            Glide
+                    .with(itemView.getContext())
                     .load(message.getProfileImageUrl()) // Ensure profile image URL is provided
                     .placeholder(R.drawable.default_avatar) // Placeholder image if URL is missing
                     .into(profileImageView);
@@ -154,7 +155,10 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
         void bind(MessageWithUserDetail message) {
-            Glide.with(itemView.getContext()).load(message.getMessageContent()).into(messageImageView);
+            Glide.
+                    with(itemView.getContext())
+                    .load(message.getMessageContent())
+                    .into(messageImageView);
         }
     }
 
