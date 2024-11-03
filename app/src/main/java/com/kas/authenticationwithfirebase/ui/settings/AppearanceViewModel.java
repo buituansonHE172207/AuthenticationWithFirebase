@@ -2,6 +2,7 @@ package com.kas.authenticationwithfirebase.ui.settings;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.AndroidViewModel;
@@ -18,9 +19,9 @@ public class AppearanceViewModel extends AndroidViewModel {
     private static final String DARK_MODE_KEY = "dark_mode";
     private static final String TEXT_SIZE_KEY = "text_size";
 
-    public static final float SMALL_TEXT_SIZE = 14f;
-    public static final float MEDIUM_TEXT_SIZE = 16f;
-    public static final float LARGE_TEXT_SIZE = 18f;
+    public static final float SMALL_TEXT_SIZE = 16f;
+    public static final float MEDIUM_TEXT_SIZE = 20f;
+    public static final float LARGE_TEXT_SIZE = 24f;
 
     private final MutableLiveData<Boolean> isDarkMode = new MutableLiveData<>();
     private final MutableLiveData<Float> textSize = new MutableLiveData<>();
@@ -65,6 +66,7 @@ public class AppearanceViewModel extends AndroidViewModel {
         // Save the preference
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putFloat(TEXT_SIZE_KEY, size);
+        Log.d("textSize",String.valueOf(size));
         editor.apply();
     }
 }

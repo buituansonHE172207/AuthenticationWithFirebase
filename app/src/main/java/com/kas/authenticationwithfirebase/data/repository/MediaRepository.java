@@ -19,55 +19,32 @@ public class MediaRepository {
     private final FirebaseStorage firebaseStorage;
     private final DatabaseReference mediaRef;
 
+    private static final String DEFAULT_FOLDER_NAME = "chat_images"; // Thư mục mặc định cho ảnh
+
     @Inject
-    public MediaRepository(FirebaseStorage firebaseStorage) {
+    public MediaRepository(FirebaseStorage firebaseStorage, FirebaseDatabase firebaseDatabase) {
         this.firebaseStorage = firebaseStorage;
-        this.mediaRef = FirebaseDatabase.getInstance().getReference("media");
+        this.mediaRef = firebaseDatabase.getReference("media");
     }
 
-    public LiveData<Resource<String>> uploadMedia(String folderName, String fileName, Uri fileUri, Media media) {
+    public LiveData<Resource<String>> uploadMedia(String messageId, Uri fileUri, Media media) {
         MutableLiveData<Resource<String>> result = new MutableLiveData<>();
         result.setValue(Resource.loading(null));
 
-        StorageReference fileRef = firebaseStorage.getReference().child(folderName + "/" + fileName);
+        // Sử dụng `messageId` làm `mediaId` và lưu trữ ảnh trong thư mục mặc định
+        StorageReference fileRef = firebaseStorage.getReference().child(DEFAULT_FOLDER_NAME + "/" + messageId);
+
         fileRef.putFile(fileUri)
-                .continueWithTask(task -> fileRef.getDownloadUrl()) // Get download URL directly after upload
+                .continueWithTask(task -> fileRef.getDownloadUrl()) // Nhận URL sau khi tải lên thành công
                 .addOnSuccessListener(uri -> {
                     media.setUrl(uri.toString());
-                    mediaRef.child(media.getMediaId()).setValue(media)
+                    media.setMediaId(messageId); // Dùng `messageId` làm `mediaId`
+
+                    mediaRef.child(messageId).setValue(media)
                             .addOnSuccessListener(aVoid -> result.setValue(Resource.success(uri.toString())))
                             .addOnFailureListener(e -> result.setValue(Resource.error("Failed to save metadata: " + e.getMessage(), null)));
                 })
                 .addOnFailureListener(e -> result.setValue(Resource.error("Failed to upload file: " + e.getMessage(), null)));
-
-        return result;
-    }
-
-    public LiveData<Resource<Media>> getMedia(String mediaId) {
-        MutableLiveData<Resource<Media>> result = new MutableLiveData<>();
-        result.setValue(Resource.loading(null));
-
-        mediaRef.child(mediaId).get()
-                .addOnSuccessListener(dataSnapshot -> {
-                    Media media = dataSnapshot.getValue(Media.class);
-                    result.setValue(Resource.success(media));
-                })
-                .addOnFailureListener(e -> result.setValue(Resource.error("Failed to retrieve media: " + e.getMessage(), null)));
-        return result;
-    }
-
-    public LiveData<Resource<Boolean>> deleteMedia(String mediaId, String mediaUrl) {
-        MutableLiveData<Resource<Boolean>> result = new MutableLiveData<>();
-        result.setValue(Resource.loading(false));
-
-        // Delete media metadata in Database
-        mediaRef.child(mediaId).removeValue()
-                .addOnSuccessListener(aVoid -> {
-                    firebaseStorage.getReferenceFromUrl(mediaUrl).delete()
-                            .addOnSuccessListener(aVoid1 -> result.setValue(Resource.success(true)))
-                            .addOnFailureListener(e -> result.setValue(Resource.error("Failed to delete file from storage: " + e.getMessage(), false)));
-                })
-                .addOnFailureListener(e -> result.setValue(Resource.error("Failed to delete metadata: " + e.getMessage(), false)));
 
         return result;
     }
