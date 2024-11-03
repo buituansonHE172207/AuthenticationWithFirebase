@@ -28,10 +28,12 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final List<MessageWithUserDetail> messages;
     private final String currentUserId;
+    private static float textSize = 16;
 
-    public MessageAdapter(List<MessageWithUserDetail> messages, String currentUserId) {
+    public MessageAdapter(List<MessageWithUserDetail> messages, String currentUserId,float textSize) {
         this.messages = messages;
         this.currentUserId = currentUserId;
+        MessageAdapter.textSize =textSize;
     }
 
     @Override
@@ -101,8 +103,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         SentTextViewHolder(View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.sent_text);
+            messageTextView.setTextSize(textSize);
             timestampTextView = itemView.findViewById(R.id.tvTimestamp);
-
+            timestampTextView.setTextSize(textSize*3/4);
         }
 
         void bind(MessageWithUserDetail message) {
@@ -121,7 +124,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         ReceivedTextViewHolder(View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.received_text);
+            messageTextView.setTextSize(textSize);
             timestampTextView = itemView.findViewById(R.id.tvTimestamp);
+            timestampTextView.setTextSize(textSize*3/4);
             senderNameTextView = itemView.findViewById(R.id.user_chat_name);
             profileImageView = itemView.findViewById(R.id.profile_image);
         }

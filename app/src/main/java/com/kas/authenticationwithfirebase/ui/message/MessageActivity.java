@@ -3,8 +3,10 @@ package com.kas.authenticationwithfirebase.ui.message;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -51,6 +53,7 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
     private CameraManager cameraManager;
     private FileManager fileManager;
     private TextView chatName;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,8 +72,12 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
         cameraManager = new CameraManager(this, this);
         fileManager = new FileManager(this, this);
 
+        // Retrieve and apply text size from SharedPreferences
+        sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE);
+        float textSize = sharedPreferences.getFloat("text_size", 16.0f); // Default size is 16.0f if not set
+        Log.d("textSize",String.valueOf(textSize));
         messageViewModel = new ViewModelProvider(this).get(MessageViewModel.class);
-        messageAdapter = new MessageAdapter(messages, messageViewModel.getCurrentUserId());
+        messageAdapter = new MessageAdapter(messages, messageViewModel.getCurrentUserId(),textSize);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(messageAdapter);
 

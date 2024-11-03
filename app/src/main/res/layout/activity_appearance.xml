@@ -67,12 +67,20 @@
             android:id="@+id/link_text_size"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Label for Text Size Setting -->
+            <TextView
+                android:id="@+id/label_text_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set text size"
+                android:textSize="18sp"
+                android:textColor="@color/text_color"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Spinner for Text Size -->
             <Spinner
                 android:id="@+id/spinnerTextSize"
                 android:layout_width="match_parent"
