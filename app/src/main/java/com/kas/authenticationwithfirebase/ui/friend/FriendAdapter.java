@@ -129,7 +129,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             // Load profile image
             Glide.with(itemView.getContext())
                     .load(friend.getProfileImageUrl())
-                    .placeholder(R.drawable.ic_user_placeholder) // Placeholder image
+                    .placeholder(R.drawable.default_avatar) // Placeholder image
                     .into(avatar);
         }
 
