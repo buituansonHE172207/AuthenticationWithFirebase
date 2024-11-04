@@ -6,30 +6,46 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.kas.authenticationwithfirebase.data.entity.Media;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.auth.FirebaseAuth;
 import com.kas.authenticationwithfirebase.data.entity.Message;
 import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.data.model.MessageWithUserDetail;
 import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
 import com.kas.authenticationwithfirebase.data.repository.ChatRoomRepository;
 import com.kas.authenticationwithfirebase.data.repository.CloudStorageRepository;
-import com.kas.authenticationwithfirebase.data.repository.MediaRepository;
 import com.kas.authenticationwithfirebase.data.repository.MessageRepository;
 import com.kas.authenticationwithfirebase.data.repository.UserRepository;
+import com.kas.authenticationwithfirebase.service.FcmApi;
+import com.kas.authenticationwithfirebase.service.NotificationBody;
+import com.kas.authenticationwithfirebase.service.SendMessageDto;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 @HiltViewModel
 public class MessageViewModel extends ViewModel {
+    private static final String MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
+    private static final String[] SCOPES = { MESSAGING_SCOPE };
     private final MessageRepository messageRepository;
     private MediatorLiveData<Resource<List<MessageWithUserDetail>>> messagesWithDetails;
     private final String currentUserId;
@@ -38,6 +54,10 @@ public class MessageViewModel extends ViewModel {
     private final CloudStorageRepository cloudStorageRepository;
 
     private final MutableLiveData<Boolean> isSendingMessage = new MutableLiveData<>(false);
+
+
+    //private ChatState state = new ChatState();
+    private final FcmApi fcmApi;
 
     @Inject
     public MessageViewModel(MessageRepository messageRepository,
@@ -50,6 +70,14 @@ public class MessageViewModel extends ViewModel {
         this.chatRoomRepository = chatRoomRepository;
         this.userRepository = userRepository;
         this.cloudStorageRepository = cloudStorageRepository;
+
+        fcmApi = new Retrofit.Builder()
+                //.baseUrl("http://10.0.2.2:8080/") // URL cơ bản cho FCM chi dung dc voi emulator
+                .baseUrl("https://fcm.googleapis.com/")  // Dung cai nay thi phai sua URL endpoint trong FcmApi thanh @POST("v1/projects/{project_id}/messages:send")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(FcmApi.class);
+
     }
 
     public LiveData<Boolean> isSendingMessage() {
@@ -71,8 +99,92 @@ public class MessageViewModel extends ViewModel {
         LiveData<Resource<Message>> result = checkUserLoggedIn(
                 messageRepository.sendMessage(chatRoomId, message)
         );
+        result.observeForever(sendResult -> {
+            if (sendResult.getStatus() == Resource.Status.SUCCESS) {
+                // Gửi thông báo qua FCM sau khi tin nhắn được gửi thành công
+                sendNotificationToRecipient(message, chatRoomId);
+            }
+        });
         chatRoomRepository.updateLastMessage(message);
         return result;
+    }
+    private void sendNotificationToRecipient(Message message, String chatRoomId) {
+        String tokenTest = "cyICIKhsSQStFnga7Co1HR:APA91bG-jZl0ZPN-fq_n5sMIcbBXqx0-fKea1gvCgJp3kDIPw-pr_cRmbFnwwJKmCpoyEWd-diFOzPPRpfI3PuvNWr2Tbdz45solxYMnbgZ7ot_iTg0s54k";
+        // Thông tin thông báo
+        NotificationBody notificationBody = new NotificationBody(
+                "New message!",
+                message.getMessageContent()
+        );
+
+        // Thiết lập đối tượng `SendMessageDto`
+        SendMessageDto sendMessageDto = new SendMessageDto(
+                tokenTest, // Thay bằng token của người nhận tin nhắn, lấy từ chatRoomId
+                notificationBody
+        );
+
+        // Gửi yêu cầu thông qua FcmApi
+        new Thread(() -> {
+//            try {
+//                fcmApi.sendMessage(sendMessageDto).execute();
+//                Log.d("MessageViewModel", "Notification sent successfully.");
+//            } catch (Exception e) {
+//                Log.e("MessageViewModel", "Failed to send notification: " + e.getMessage());
+//            }
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+//            String token = null;
+//            try {
+//                token = getAccessToken();
+//            } catch (IOException e) {
+//                Log.d("FCM1","GetAccessToken:"+e.getMessage());
+//                throw new RuntimeException(e);
+//            }
+            String token = "ya29.a0AeDClZA_t_NAiPzua1VDBVIYKJ3HPx5wuz89XcjqoJ2yHxwGqqw7JV6OumynK7Sl9nA3_az5do7jy_UHD7nW-Hvx1xwTkE_Yj2WRQk75ixPUeKLqoDjPlIw9gZFFQnr0napGWAxDon0Rs_Q9h_1At1Ysxq0tDSWVx-FwgA4SaCgYKAeUSARESFQHGX2MiogN9J5w280nuCXg6tY4zlw0175";
+            String authToken = "Bearer "+ token;
+
+            String projectId = "kas1407";
+
+            // Tạo payload cho FCM
+            JSONObject payload = new JSONObject();
+            try {
+                JSONObject messageObject = new JSONObject();
+                messageObject.put("token", tokenTest);
+                JSONObject notificationObject = new JSONObject();
+                notificationObject.put("title", notificationBody.getTitle());
+                notificationObject.put("body", notificationBody.getBody());
+                messageObject.put("notification", notificationObject);
+                payload.put("message", messageObject);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            fcmApi.sendMessage(authToken, projectId, sendMessageDto).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Log.d("FCM1", "Message sent successfully!");
+                    } else {
+                        try {
+                            // In ra chi tiết lỗi
+                            String errorResponse = response.errorBody().string();
+                            Log.e("FCM1", "Failed to send message: " + errorResponse);
+                        } catch (IOException e) {
+                            Log.e("FCM1", "Failed to read error response: " + e.getMessage());
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.e("FCM1", "Error: " + t.getMessage());
+                }
+            });
+        }).start();
+    }
+    private static String getAccessToken() throws IOException {
+        GoogleCredentials googleCredentials = GoogleCredentials
+                .fromStream(new FileInputStream("service-account.json"))
+                .createScoped(Arrays.asList(SCOPES));
+        googleCredentials.refresh();
+        return googleCredentials.getAccessToken().getTokenValue();
     }
 
     // Phương thức để gửi tin nhắn ảnh

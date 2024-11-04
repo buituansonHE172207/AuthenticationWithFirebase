@@ -23,12 +23,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.Message;
@@ -46,13 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+
 
 @AndroidEntryPoint
 public class MessageActivity extends AppCompatActivity implements CameraManager.CamaraCallBack, FileManager.FilePickerCallback {
@@ -177,7 +167,7 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
     void sendNotification(String message){
         Log.d("MessageActivity", "Preparing to send notification for message: " + message);
 
-        String t = "cyICIKhsSQStFnga7Co1HR:APA91bG-jZl0ZPN-fq_n5sMIcbBXqx0-fKea1gvCgJp3kDIPw-pr_cRmbFnwwJKmCpoyEWd-diFOzPPRpfI3PuvNWr2Tbdz45solxYMnbgZ7ot_iTg0s54k";
+        String tokenTest = "cyICIKhsSQStFnga7Co1HR:APA91bG-jZl0ZPN-fq_n5sMIcbBXqx0-fKea1gvCgJp3kDIPw-pr_cRmbFnwwJKmCpoyEWd-diFOzPPRpfI3PuvNWr2Tbdz45solxYMnbgZ7ot_iTg0s54k";
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid())
                 .get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -206,7 +196,7 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
 //                                e.printStackTrace();
 //                            }
 //                        });
-                        Log.d("MessageActivity", "Using recipient token: " + t);
+                        Log.d("MessageActivity", "Using recipient token: " + tokenTest);
                         try {
                             JSONObject jsonObject = new JSONObject();
 
@@ -219,9 +209,9 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
 
                             jsonObject.put("notification", notificationObj);
                             jsonObject.put("data", dataObj);
-                            jsonObject.put("to", t);   //token nguoi nhan o day
+                            jsonObject.put("to", tokenTest);   //token nguoi nhan o day
 
-                            callApi(jsonObject);
+                            //callApi(jsonObject);
                             Log.d("MessageActivity", "Notification JSON: " + jsonObject.toString());
 
                         } catch (Exception e) {
@@ -248,36 +238,36 @@ public class MessageActivity extends AppCompatActivity implements CameraManager.
 //        });
 //    }
 
-    void callApi(JSONObject jsonObject){
-        String serverKey = "BCcunojuEgTx_jOQAkLYO-NHfwygRkmA0S1pOrdRzRb6ohJxwRTdKumX5Kvy7t5wR2BIfX5MFPGxTU6EgMOoD4U";
-        MediaType JSON = MediaType.get("application/json; charset=utf-8");
-        OkHttpClient client = new OkHttpClient();
-        String url = "https://fcm.googleapis.com/fcm/send";
-        RequestBody body = RequestBody.create(jsonObject.toString(),JSON);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                //.header("Authorization","Bearer "+serverKey)
-                .header("Authorization", "key=" +serverKey)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("MessageActivity", "API call failed", e);
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    Log.d("MessageActivity", "Notification sent successfully: " + response.body().string());
-                } else {
-                    Log.e("MessageActivity", "Failed to send notification: " + response.message());
-                    Log.e("MessageActivity", "Response body: " + response.body().string());
-                }
-            }
-        });
-
-    }
+//    void callApi(JSONObject jsonObject){
+//        String serverKey = "AIzaSyC4XkkW3DsBDQYhZeIRTKRG69fidx5w398";
+//        MediaType JSON = MediaType.get("application/json; charset=utf-8");
+//        OkHttpClient client = new OkHttpClient();
+//        String url = "https://fcm.googleapis.com/fcm/send";
+//        RequestBody body = RequestBody.create(jsonObject.toString(),JSON);
+//        Request request = new Request.Builder()
+//                .url(url)
+//                .post(body)
+//                //.header("Authorization","Bearer "+serverKey)
+//                .header("Authorization", "key=" +serverKey)
+//                .build();
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+//                Log.e("MessageActivity", "API call failed", e);
+//            }
+//
+//            @Override
+//            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+//                if (response.isSuccessful()) {
+//                    Log.d("MessageActivity", "Notification sent successfully: " + response.body().string());
+//                } else {
+//                    Log.e("MessageActivity", "Failed to send notification: " + response.message());
+//                    Log.e("MessageActivity", "Response body: " + response.body().string());
+//                }
+//            }
+//        });
+//
+//    }
 
 
     @Override
