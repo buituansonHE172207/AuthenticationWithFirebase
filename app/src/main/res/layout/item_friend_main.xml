@@ -12,29 +12,45 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <androidx.cardview.widget.CardView
+        <FrameLayout
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="0dp"
-            app:cardBackgroundColor="@color/primary"
-            app:cardCornerRadius="40dp">
+            android:layout_marginTop="8dp">
 
             <androidx.cardview.widget.CardView
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_gravity="center"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:cardBackgroundColor="@color/primary"
                 app:cardCornerRadius="40dp">
 
-                <ImageView
-                    android:id="@+id/avatar"
+                <androidx.cardview.widget.CardView
                     android:layout_width="55dp"
                     android:layout_height="55dp"
+                    android:layout_gravity="center"
+                    app:cardCornerRadius="40dp">
 
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_user_placeholder" />
+                    <ImageView
+                        android:id="@+id/avatar"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_user_placeholder" />
+                </androidx.cardview.widget.CardView>
             </androidx.cardview.widget.CardView>
-        </androidx.cardview.widget.CardView>
+
+            <!-- Online indicator dot -->
+            <View
+                android:id="@+id/online_indicator"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/green_dot"
+                android:layout_gravity="bottom|end"
+                android:layout_marginBottom="1dp"
+                android:layout_marginEnd="1dp"
+                android:backgroundTintMode="src_in"
+                android:visibility="visible"
+                android:elevation="4dp"/>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/friend_name"

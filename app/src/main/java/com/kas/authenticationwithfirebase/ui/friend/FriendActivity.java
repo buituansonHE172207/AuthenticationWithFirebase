@@ -19,6 +19,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.ui.main.MainActivity;
 import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
+import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileActivity;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -45,7 +46,7 @@ public class FriendActivity extends AppCompatActivity {
         recyclerViewSearchResults = findViewById(R.id.recycler_view_search_results);
         progressBar = findViewById(R.id.progress_bar);
         searchView = findViewById(R.id.search_view);
-
+        searchView.setQueryHint("Search users");
         // Set up adapters
         friendAdapter = new FriendAdapter();
         searchAdapter = new FriendAdapter();
@@ -60,6 +61,11 @@ public class FriendActivity extends AppCompatActivity {
         friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
 
         friendAdapter.setOnFriendClickListener(friend -> {
+            Intent intent = new Intent(FriendActivity.this, UserProfileActivity.class);
+            intent.putExtra("friendId", friend.getUserId());
+            startActivity(intent);
+        });
+        friendAdapter.setOnFriendButtonClickListener(friend -> {
             // Create a new chat room
             friendViewModel.createChatRoom(friend.getUserId()).observe(this, resource -> {
                 if (resource.getStatus() == Resource.Status.SUCCESS) {
@@ -74,7 +80,6 @@ public class FriendActivity extends AppCompatActivity {
                 }
             });
         });
-
         searchAdapter.setOnFriendClickListener(friend -> {
             // Add friend
             friendViewModel.addFriend(friend.getUserId()).observe(this, resource -> {
@@ -129,7 +134,7 @@ public class FriendActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.new_chat) {
                 return true;
-            } else if (item.getItemId() == R.id.message ) {
+            } else if (item.getItemId() == R.id.message) {
                 Intent intent = new Intent(FriendActivity.this, MainActivity.class);
                 startActivity(intent);
                 return true;

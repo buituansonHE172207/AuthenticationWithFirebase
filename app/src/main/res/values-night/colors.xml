@@ -22,4 +22,6 @@
     <color name="warning">#FF0000</color>
     <color name="bubble_chat">#3E3B3B</color>
     <color name="bubble_chat_text_recieved">#FFFFFFFF</color>
+    <color name="online_status_color">#1EDE3D</color>
+
 </resources>

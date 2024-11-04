@@ -1,13 +1,17 @@
 package com.kas.authenticationwithfirebase.ui.friend;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.User;
 
@@ -17,9 +21,13 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
 
     private List<User> friendList;
     private OnFriendClickListener onFriendClickListener;
+    private OnFriendButtonClickListener onFriendButtonClickListener;
 
     public void setOnFriendClickListener(OnFriendClickListener onFriendClickListener) {
         this.onFriendClickListener = onFriendClickListener;
+    }
+    public void setOnFriendButtonClickListener(OnFriendButtonClickListener onFriendButtonClickListener) {
+        this.onFriendButtonClickListener = onFriendButtonClickListener;
     }
 
     @NonNull
@@ -42,6 +50,9 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
 
     public interface OnFriendClickListener {
         void onFriendClick(User friend);
+    }
+    public interface OnFriendButtonClickListener{
+        void onFriendButtonClick(User friend);
     }
 
     public void updateFriendList(List<User> newFriendList) {
@@ -71,25 +82,55 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
         private TextView friendNameTextView;
         private TextView friendEmailTextView;
         private TextView friendStatusTextView;
+        private ImageView avatar;
+        private View onlineIndicator;
+        private ImageButton viewChatButton;
 
         public FriendViewHolder(@NonNull View itemView) {
             super(itemView);
             friendNameTextView = itemView.findViewById(R.id.friend_name);
             friendEmailTextView = itemView.findViewById(R.id.friend_email);
             friendStatusTextView = itemView.findViewById(R.id.friend_status);
-
+            avatar = itemView.findViewById(R.id.avatar);
+            onlineIndicator = itemView.findViewById(R.id.online_indicator);
+            viewChatButton = itemView.findViewById(R.id.btn_view_chat);
             itemView.setOnClickListener(view -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && onFriendClickListener != null) {
                     onFriendClickListener.onFriendClick(friendList.get(position));
                 }
             });
+            // Handle chat button click
+            viewChatButton.setOnClickListener(view -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && onFriendClickListener != null) {
+                    User friend = friendList.get(position);
+                    onFriendButtonClickListener.onFriendButtonClick(friend);
+                }
+            });
         }
-
         void bind(User friend) {
             friendNameTextView.setText(friend.getUsername());
-            friendEmailTextView.setText(friend.getEmail());
+            //friendEmailTextView.setText(friend.getEmail());
+            friendEmailTextView.setText("Email: " + "mockupemail@gmail.com");
+            Log.d("friendStatus",friend.getEmail());
             friendStatusTextView.setText(friend.getStatus());
+
+            if ("ONLINE".equalsIgnoreCase(friend.getStatus())) {
+                onlineIndicator.setVisibility(View.VISIBLE);
+                friendStatusTextView.setText(friend.getStatus());
+                friendStatusTextView.setTextColor(itemView.getContext().getResources().getColor(R.color.online_status_color));
+            } else {
+                onlineIndicator.setVisibility(View.GONE);
+                friendStatusTextView.setText(friend.getStatus());
+                friendStatusTextView.setTextColor(itemView.getContext().getResources().getColor(R.color.text_color));
+            }
+
+            // Load profile image
+            Glide.with(itemView.getContext())
+                    .load(friend.getProfileImageUrl())
+                    .placeholder(R.drawable.ic_user_placeholder) // Placeholder image
+                    .into(avatar);
         }
 
     }

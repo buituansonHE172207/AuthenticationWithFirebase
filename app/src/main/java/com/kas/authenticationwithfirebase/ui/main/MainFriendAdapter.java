@@ -57,12 +57,13 @@ public class MainFriendAdapter extends RecyclerView.Adapter<MainFriendAdapter.Ma
         private ImageView avatar;
         private TextView friendNameTextView;
         //private TextView friendStatusTextView;
-
+        private View onlineIndicator;
         public MainFriendViewHolder(@NonNull View itemView) {
             super(itemView);
             avatar = itemView.findViewById(R.id.avatar);
             friendNameTextView = itemView.findViewById(R.id.friend_name);
             //friendStatusTextView = itemView.findViewById(R.id.friend_status);
+            onlineIndicator = itemView.findViewById(R.id.online_indicator);
 
             itemView.setOnClickListener(view -> {
                 int position = getAdapterPosition();
@@ -81,6 +82,11 @@ public class MainFriendAdapter extends RecyclerView.Adapter<MainFriendAdapter.Ma
 
             friendNameTextView.setText(friend.getUsername());
             //friendStatusTextView.setText(friend.getStatus());
+            if ("ONLINE".equalsIgnoreCase(friend.getStatus())) {
+                onlineIndicator.setVisibility(View.VISIBLE);
+            } else {
+                onlineIndicator.setVisibility(View.GONE);
+            }
         }
     }
 }
