@@ -149,8 +149,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup bottom navigation listener
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.new_chat) {
+            if (item.getItemId() == R.id.profile) {
                 //chatRoomViewModel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
+                Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
+                startActivity(intent);
                 return true;
             } else if (item.getItemId() == R.id.message) {
                 return true;

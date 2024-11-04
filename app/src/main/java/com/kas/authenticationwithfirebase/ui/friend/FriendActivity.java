@@ -62,7 +62,7 @@ public class FriendActivity extends AppCompatActivity {
 
         friendAdapter.setOnFriendClickListener(friend -> {
             Intent intent = new Intent(FriendActivity.this, UserProfileActivity.class);
-            intent.putExtra("friendId", friend.getUserId());
+            intent.putExtra("userId", friend.getUserId());
             startActivity(intent);
         });
         friendAdapter.setOnFriendButtonClickListener(friend -> {
@@ -132,7 +132,10 @@ public class FriendActivity extends AppCompatActivity {
 
         // Setup bottom navigation listener
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.new_chat) {
+            if (item.getItemId() == R.id.profile) {
+                //chatRoomViewModel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
+                Intent intent = new Intent(FriendActivity.this, UserProfileActivity.class);
+                startActivity(intent);
                 return true;
             } else if (item.getItemId() == R.id.message) {
                 Intent intent = new Intent(FriendActivity.this, MainActivity.class);

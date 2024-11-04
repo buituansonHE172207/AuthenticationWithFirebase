@@ -78,6 +78,8 @@ public class UserProfileActivity extends AppCompatActivity implements CameraMana
             }
         });
 
+        userId = getIntent().getStringExtra("userId");
+
         updateAvatar = findViewById(R.id.updateAvatar);
         userAvatar = findViewById(R.id.userAvatar);
         btnEdit = findViewById(R.id.btnEdit);
