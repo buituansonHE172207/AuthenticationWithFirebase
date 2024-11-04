@@ -124,38 +124,32 @@ public class MessageViewModel extends ViewModel {
 
         // Gửi yêu cầu thông qua FcmApi
         new Thread(() -> {
-//            try {
-//                fcmApi.sendMessage(sendMessageDto).execute();
-//                Log.d("MessageViewModel", "Notification sent successfully.");
-//            } catch (Exception e) {
-//                Log.e("MessageViewModel", "Failed to send notification: " + e.getMessage());
-//            }
             FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-//            String token = null;
-//            try {
-//                token = getAccessToken();
-//            } catch (IOException e) {
-//                Log.d("FCM1","GetAccessToken:"+e.getMessage());
-//                throw new RuntimeException(e);
-//            }
-            String token = "ya29.a0AeDClZA_t_NAiPzua1VDBVIYKJ3HPx5wuz89XcjqoJ2yHxwGqqw7JV6OumynK7Sl9nA3_az5do7jy_UHD7nW-Hvx1xwTkE_Yj2WRQk75ixPUeKLqoDjPlIw9gZFFQnr0napGWAxDon0Rs_Q9h_1At1Ysxq0tDSWVx-FwgA4SaCgYKAeUSARESFQHGX2MiogN9J5w280nuCXg6tY4zlw0175";
-            String authToken = "Bearer "+ token;
+            String token = null;
+            try {
+                token = getAccessToken();
+            } catch (IOException e) {
+                Log.d("FCM1","GetAccessToken:"+e.getMessage());
+                throw new RuntimeException(e);
+            }
+            //String token = "ya29.a0AeDClZDwvQBH3UTDTGu_dPlJI8TXLyTkiVQBkNGkYVtp7AW05X25UfwzkbgFsLIdCPZgNC0B6iRXtUmyQjUqsP04nLA_YFKHTTvFlhLMTFXixAIFJdTkUbgiTdbSZs19_IslG8XwKg5EY0OfxbpFHcgueJ6ktt45_iqpLmkmaCgYKAd8SARESFQHGX2Miru-QUxiH-0dK3XgZaE-X4A0175";
 
+            String authToken = "Bearer "+ token;
             String projectId = "kas1407";
 
             // Tạo payload cho FCM
-            JSONObject payload = new JSONObject();
-            try {
-                JSONObject messageObject = new JSONObject();
-                messageObject.put("token", tokenTest);
-                JSONObject notificationObject = new JSONObject();
-                notificationObject.put("title", notificationBody.getTitle());
-                notificationObject.put("body", notificationBody.getBody());
-                messageObject.put("notification", notificationObject);
-                payload.put("message", messageObject);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+//            JSONObject payload = new JSONObject();
+//            try {
+//                JSONObject messageObject = new JSONObject();
+//                messageObject.put("token", tokenTest);
+//                JSONObject notificationObject = new JSONObject();
+//                notificationObject.put("title", notificationBody.getTitle());
+//                notificationObject.put("body", notificationBody.getBody());
+//                messageObject.put("notification", notificationObject);
+//                payload.put("message", messageObject);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
             fcmApi.sendMessage(authToken, projectId, sendMessageDto).enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
@@ -171,7 +165,6 @@ public class MessageViewModel extends ViewModel {
                         }
                     }
                 }
-
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
                     Log.e("FCM1", "Error: " + t.getMessage());
