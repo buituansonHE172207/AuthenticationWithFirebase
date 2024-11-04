@@ -1,6 +1,7 @@
 package com.kas.authenticationwithfirebase.ui.main;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -9,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -16,10 +18,13 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,11 +38,13 @@ import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewModel;
 import com.kas.authenticationwithfirebase.ui.friend.FriendActivity;
+import com.kas.authenticationwithfirebase.ui.friend.FriendAdapter;
 import com.kas.authenticationwithfirebase.ui.friend.FriendViewModel;
 import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
 import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
 import com.kas.authenticationwithfirebase.ui.settings.SettingsActivity;
 import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileActivity;
+import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileViewModel;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.List;
@@ -50,14 +57,14 @@ public class MainActivity extends AppCompatActivity {
     private ChatRoomViewModel chatRoomViewModel;
     private RecyclerView rvChatRooms;
     private BottomNavigationView bottomNavigationView;
-    private LinearLayout dropdownLayout;
+    private RecyclerView dropdownLayout;
     private ImageButton profileIcon;
     private AuthViewModel authViewModel;
     private FriendViewModel friendViewModel;
-    private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
-
+    private UserProfileViewModel userViewModel;
     private SharedPreferences sharedPreferences;
-
+    private MainFriendAdapter friendAdapter;
+    private ChatRoomAdapter chatRoomAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE);
@@ -80,7 +87,41 @@ public class MainActivity extends AppCompatActivity {
         chatRoomViewModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        ChatRoomAdapter chatRoomAdapter = new ChatRoomAdapter();
+        chatRoomAdapter = new ChatRoomAdapter();
+
+        // Initialize FriendAdapter
+        friendAdapter = new MainFriendAdapter();
+        friendAdapter.setOnFriendClickListener(friend -> {
+            // Handle friend click (if needed)
+            friendViewModel.createChatRoom(friend.getUserId()).observe(this, resource -> {
+                if (resource.getStatus() == Resource.Status.SUCCESS) {
+                    Intent intent = new Intent(MainActivity.this, MessageActivity.class);
+                    intent.putExtra("chatRoomId", resource.getData().getChatRoomId());
+                    intent.putExtra("chatRoomName", resource.getData().getChatRoomName());
+                    startActivity(intent);
+                } else if (resource.getStatus() == Resource.Status.ERROR) {
+                    // Handle error
+                } else if (resource.getStatus() == Resource.Status.LOADING) {
+                    // Show loading
+                }
+            });
+        });
+
+        userViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
+        userViewModel.getUserProfile().observe(this, resource -> {
+            if (resource.getStatus() == Resource.Status.SUCCESS) {
+                // Set the profile image directly
+                String profileImageUrl = resource.getData().getProfileImageUrl();
+                Glide.with(this)
+                        .load(profileImageUrl)
+                        .placeholder(R.drawable.default_avatar)
+                        .into(profileIcon);
+            } else if (resource.getStatus() == Resource.Status.ERROR) {
+                // Handle error
+            } else if (resource.getStatus() == Resource.Status.LOADING) {
+                // Show loading
+            }
+        });
 
         rvChatRooms.setAdapter(chatRoomAdapter);
         rvChatRooms.setLayoutManager(new LinearLayoutManager(this));
@@ -149,85 +190,90 @@ public class MainActivity extends AppCompatActivity {
         // Quan sát danh sách bạn bè và hiển thị
         friendViewModel.getFriendsList().observe(this, resource -> {
             if (resource.getStatus() == Resource.Status.SUCCESS && resource.getData() != null) {
-                populateFriendList(resource.getData());
+               populateFriendList(resource.getData());
             }
         });
 
     }
 
+    @SuppressLint("RestrictedApi")
 
     private void showPopupMenu(View view) {
-        PopupMenu popupMenu = new PopupMenu(this, view);
-        popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
+        // Create a MenuBuilder instance
+        MenuBuilder menuBuilder = new MenuBuilder(this);
+        // Inflate your menu resource into the MenuBuilder
+        getMenuInflater().inflate(R.menu.profile_menu, menuBuilder);
 
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.btnLogout) {
-                authViewModel.logoutUser();
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-                return true;
-            } else if (itemId == R.id.btnSettings) {
-                // Open settings activity
-                // Handle settings action, e.g., open settings activity
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
+        // Create a MenuPopupHelper to display the menu
+        MenuPopupHelper menuPopupHelper = new MenuPopupHelper(this, menuBuilder, view);
+        menuPopupHelper.setForceShowIcon(true);  // Force icons to be shown
 
-                return true;
-            } else if (itemId == R.id.btnProfile) {
-                // Open settings activity
-                // Handle settings action, e.g., open settings activity
-                Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
-                startActivity(intent);
-
-                return true;
+        // Set a callback to handle menu item clicks
+        menuBuilder.setCallback(new MenuBuilder.Callback() {
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.btnLogout) {
+                    authViewModel.logoutUser();
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                    return true;
+                } else if (itemId == R.id.btnSettings) {
+                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.btnProfile) {
+                    Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+                return false;
             }
-            return false;
+
+            @Override
+            public void onMenuModeChange(MenuBuilder menu) {
+                // No need to implement
+            }
         });
 
-        popupMenu.show();
+        // Show the popup menu
+        menuPopupHelper.show();
     }
 
-
+    private void setupFriendDropdown() {
+        dropdownLayout.removeAllViews();  // Clear old views
+        RecyclerView friendRecyclerView = new RecyclerView(this);
+        friendRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        friendRecyclerView.setAdapter(friendAdapter);
+        dropdownLayout.addView(friendRecyclerView);  // Add RecyclerView to dropdown layout
+    }
     private void populateFriendList(List<User> friendsList) {
-        dropdownLayout.removeAllViews(); // Xóa các View cũ
+        // Check if dropdownLayout is a RecyclerView, you might want to cast it
+        // dropdownLayout.setVisibility(View.VISIBLE); // Optionally show the layout
 
-        for (User friend : friendsList) {
-            // Tạo `LinearLayout` cho từng bạn bè
-            LinearLayout friendLayout = new LinearLayout(this);
-            friendLayout.setOrientation(LinearLayout.VERTICAL);
-            friendLayout.setPadding(8, 8, 8, 8);
-            friendLayout.setGravity(Gravity.CENTER);
+        // Remove all views in dropdownLayout
+        dropdownLayout.removeAllViews();
 
-            // Tạo ImageView cho ảnh đại diện
-            ImageView avatar = new ImageView(this);
-            avatar.setLayoutParams(new LinearLayout.LayoutParams(120, 120));
+        // Initialize LayoutManager for dropdownLayout
+        LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        dropdownLayout.setLayoutManager(horizontalLayoutManager);
 
-//            // Sử dụng Glide để tải ảnh từ `profileImageUrl`
-            Glide.with(this)
-                    .load(friend.getProfileImageUrl()) // URL của ảnh
-                    .placeholder(R.drawable.default_avatar) // Ảnh tạm thời nếu chưa tải xong
-                    //.error(R.drawable.error_avatar) // Ảnh lỗi nếu tải thất bại
-                    .into(avatar);
+        // Set the adapter to dropdownLayout
+        friendAdapter.setFriendList(friendsList);
+        dropdownLayout.setAdapter(friendAdapter);
 
-            // Tạo TextView cho tên bạn bè
-            TextView name = new TextView(this);
-            name.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            name.setText(friend.getUsername()); // Sử dụng username từ User
-            name.setTextColor(Color.WHITE);
-            name.setTextSize(12);
-            name.setGravity(Gravity.CENTER);
-            name.setPadding(0, 4, 0, 0);
+        // You might want to show the dropdownLayout after setting the adapter
+        dropdownLayout.setVisibility(View.VISIBLE);
 
-            // Thêm `ImageView` và `TextView` vào `friendLayout`
-            friendLayout.addView(avatar);
-            friendLayout.addView(name);
-
-            // Thêm `friendLayout` vào `dropdownLayout`
-            dropdownLayout.addView(friendLayout);
-        }
+        // Set the click listener for view friend profile
+        /*
+        friendAdapter.setOnFriendClickListener(friend -> {
+            Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
+            intent.putExtra("friendId", friend.getUserId());
+            startActivity(intent);
+        });
+        */
     }
 }
