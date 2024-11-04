@@ -1,9 +1,12 @@
 package com.kas.authenticationwithfirebase.ui.main;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -18,6 +21,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.lifecycle.ViewModelProvider;
@@ -25,7 +30,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.kas.authenticationwithfirebase.AuthenticationWithFirebase;
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
 import com.kas.authenticationwithfirebase.data.entity.User;
@@ -43,6 +55,7 @@ import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileViewModel;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.List;
+import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -60,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private MainFriendAdapter friendAdapter;
     private ChatRoomAdapter chatRoomAdapter;
+    private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE);
@@ -70,6 +84,13 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Kiểm tra và yêu cầu quyền thông báo nếu cần thiết
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFICATION_PERMISSION);
+            }
+        }
 
         rvChatRooms = findViewById(R.id.rvChatRooms);
         profileIcon = findViewById(R.id.profile_icon);
@@ -184,6 +205,24 @@ public class MainActivity extends AppCompatActivity {
                populateFriendList(resource.getData());
             }
         });
+        getFCMToken();
+    }
+
+    private void getFCMToken() {
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                String token = task.getResult();
+                Log.d("token", token);
+                String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+                Log.d("uid",uid);
+                FirebaseFirestore.getInstance().collection("users")
+                        .document(uid)
+                        .update("token",token)
+                        .addOnSuccessListener(aVoid -> Log.d("TokenUpdate", "Token updated successfully in Firestore"))
+                        .addOnFailureListener(e -> Log.d("TokenUpdate", "Failed to update token", e));
+
+            }
+        });
     }
 
     @SuppressLint("RestrictedApi")
@@ -204,11 +243,23 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
                 int itemId = item.getItemId();
                 if (itemId == R.id.btnLogout) {
-                    authViewModel.logoutUser();
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
+                    FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                authViewModel.logoutUser();
+                                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+                    });
+//                    authViewModel.logoutUser();
+//                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                    startActivity(intent);
+//                    finish();
                     return true;
                 } else if (itemId == R.id.btnSettings) {
                     Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
