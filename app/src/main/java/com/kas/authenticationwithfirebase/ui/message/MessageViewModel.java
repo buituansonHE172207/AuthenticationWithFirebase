@@ -8,8 +8,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.auth.FirebaseAuth;
+
 import com.kas.authenticationwithfirebase.data.entity.Message;
 import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.data.model.MessageWithUserDetail;
@@ -17,15 +16,13 @@ import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
 import com.kas.authenticationwithfirebase.data.repository.ChatRoomRepository;
 import com.kas.authenticationwithfirebase.data.repository.CloudStorageRepository;
 import com.kas.authenticationwithfirebase.data.repository.MessageRepository;
+import com.kas.authenticationwithfirebase.data.repository.NotificationRepository;
 import com.kas.authenticationwithfirebase.data.repository.UserRepository;
 import com.kas.authenticationwithfirebase.service.FcmApi;
-import com.kas.authenticationwithfirebase.service.NotificationBody;
-import com.kas.authenticationwithfirebase.service.SendMessageDto;
+import com.kas.authenticationwithfirebase.data.model.NotificationBody;
+import com.kas.authenticationwithfirebase.data.model.SendMessageDto;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,39 +42,29 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @HiltViewModel
 public class MessageViewModel extends ViewModel {
     private static final String MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
-    private static final String[] SCOPES = { MESSAGING_SCOPE };
     private final MessageRepository messageRepository;
     private MediatorLiveData<Resource<List<MessageWithUserDetail>>> messagesWithDetails;
     private final String currentUserId;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
     private final CloudStorageRepository cloudStorageRepository;
-
+    private final NotificationRepository notificationRepository;
     private final MutableLiveData<Boolean> isSendingMessage = new MutableLiveData<>(false);
 
-
-    //private ChatState state = new ChatState();
-    private final FcmApi fcmApi;
 
     @Inject
     public MessageViewModel(MessageRepository messageRepository,
                             AuthRepository authRepository,
                             ChatRoomRepository chatRoomRepository,
                             UserRepository userRepository,
-                            CloudStorageRepository cloudStorageRepository) {
+                            CloudStorageRepository cloudStorageRepository,
+                            NotificationRepository notificationRepository) {
         this.messageRepository = messageRepository;
         this.currentUserId = authRepository.getCurrentUserId();
         this.chatRoomRepository = chatRoomRepository;
         this.userRepository = userRepository;
         this.cloudStorageRepository = cloudStorageRepository;
-
-        fcmApi = new Retrofit.Builder()
-                //.baseUrl("http://10.0.2.2:8080/") // URL cơ bản cho FCM chi dung dc voi emulator
-                .baseUrl("https://fcm.googleapis.com/")  // Dung cai nay thi phai sua URL endpoint trong FcmApi thanh @POST("v1/projects/{project_id}/messages:send")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(FcmApi.class);
-
+        this.notificationRepository = notificationRepository;
     }
 
     public LiveData<Boolean> isSendingMessage() {
@@ -96,113 +83,43 @@ public class MessageViewModel extends ViewModel {
     // Phương thức để gửi tin nhắn văn bản
     public LiveData<Resource<Message>> sendTextMessage(String chatRoomId, Message message) {
         message.setSenderId(currentUserId);
-        LiveData<Resource<Message>> result = checkUserLoggedIn(
-                messageRepository.sendMessage(chatRoomId, message)
-        );
+        LiveData<Resource<Message>> result = messageRepository.sendMessage(chatRoomId, message);
+
         result.observeForever(sendResult -> {
             if (sendResult.getStatus() == Resource.Status.SUCCESS) {
-                // Gửi thông báo qua FCM sau khi tin nhắn được gửi thành công
-                sendNotificationToRecipient(message, chatRoomId);
+                NotificationBody notificationBody = new NotificationBody("New message!", message.getMessageContent());
+                // Get all tokens from chat room and send notification to each
+                chatRoomRepository.getChatRoomUserTokens(chatRoomId).observeForever(tokensResource -> {
+                    if (tokensResource.getStatus() == Resource.Status.SUCCESS) {
+                        List<String> tokens = tokensResource.getData();
+                        if (tokens != null) {
+                            for (String token : tokens) {
+                                notificationRepository.sendNotification(token, notificationBody);
+                            }
+                        }
+                    }
+                });
             }
         });
+
         chatRoomRepository.updateLastMessage(message);
         return result;
     }
-    private void sendNotificationToRecipient(Message message, String chatRoomId) {
-        String tokenTest = "cyICIKhsSQStFnga7Co1HR:APA91bG-jZl0ZPN-fq_n5sMIcbBXqx0-fKea1gvCgJp3kDIPw-pr_cRmbFnwwJKmCpoyEWd-diFOzPPRpfI3PuvNWr2Tbdz45solxYMnbgZ7ot_iTg0s54k";
-        // Thông tin thông báo
-        NotificationBody notificationBody = new NotificationBody(
-                "New message!",
-                message.getMessageContent()
-        );
 
-        // Thiết lập đối tượng `SendMessageDto`
-        SendMessageDto sendMessageDto = new SendMessageDto(
-                tokenTest, // Thay bằng token của người nhận tin nhắn, lấy từ chatRoomId
-                notificationBody
-        );
-
-        // Gửi yêu cầu thông qua FcmApi
-        new Thread(() -> {
-            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-            String token = null;
-            try {
-                token = getAccessToken();
-            } catch (IOException e) {
-                Log.d("FCM1","GetAccessToken:"+e.getMessage());
-                throw new RuntimeException(e);
-            }
-            //String token = "ya29.a0AeDClZDwvQBH3UTDTGu_dPlJI8TXLyTkiVQBkNGkYVtp7AW05X25UfwzkbgFsLIdCPZgNC0B6iRXtUmyQjUqsP04nLA_YFKHTTvFlhLMTFXixAIFJdTkUbgiTdbSZs19_IslG8XwKg5EY0OfxbpFHcgueJ6ktt45_iqpLmkmaCgYKAd8SARESFQHGX2Miru-QUxiH-0dK3XgZaE-X4A0175";
-
-            String authToken = "Bearer "+ token;
-            String projectId = "kas1407";
-
-            // Tạo payload cho FCM
-//            JSONObject payload = new JSONObject();
-//            try {
-//                JSONObject messageObject = new JSONObject();
-//                messageObject.put("token", tokenTest);
-//                JSONObject notificationObject = new JSONObject();
-//                notificationObject.put("title", notificationBody.getTitle());
-//                notificationObject.put("body", notificationBody.getBody());
-//                messageObject.put("notification", notificationObject);
-//                payload.put("message", messageObject);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-            fcmApi.sendMessage(authToken, projectId, sendMessageDto).enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        Log.d("FCM1", "Message sent successfully!");
-                    } else {
-                        try {
-                            // In ra chi tiết lỗi
-                            String errorResponse = response.errorBody().string();
-                            Log.e("FCM1", "Failed to send message: " + errorResponse);
-                        } catch (IOException e) {
-                            Log.e("FCM1", "Failed to read error response: " + e.getMessage());
-                        }
-                    }
-                }
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    Log.e("FCM1", "Error: " + t.getMessage());
-                }
-            });
-        }).start();
-    }
-    private static String getAccessToken() throws IOException {
-        GoogleCredentials googleCredentials = GoogleCredentials
-                .fromStream(new FileInputStream("service-account.json"))
-                .createScoped(Arrays.asList(SCOPES));
-        googleCredentials.refresh();
-        return googleCredentials.getAccessToken().getTokenValue();
-    }
-
-    // Phương thức để gửi tin nhắn ảnh
     public LiveData<Resource<Message>> sendImageMessage(String chatRoomId, Uri imageUri, Message message) {
         isSendingMessage.setValue(true);
 
         MutableLiveData<Resource<Message>> result = new MutableLiveData<>();
-
-        // Upload the image to cloud storage
         cloudStorageRepository.uploadFile("messages_image", imageUri.getLastPathSegment(), imageUri)
                 .observeForever(resource -> {
                     if (resource.getStatus() == Resource.Status.SUCCESS) {
-                        // Image upload successful, set the message content to the image URL
                         message.setMessageContent(resource.getData());
-                        Log.d("MessageViewModel", "Image URL: " + message.getMessageContent());
-
-                        // Now send the text message with the image URL
                         message.setSenderId(currentUserId);
+
                         messageRepository.sendMessage(chatRoomId, message).observeForever(sendResult -> {
                             isSendingMessage.setValue(false);
                             if (sendResult.getStatus() == Resource.Status.SUCCESS) {
                                 result.setValue(Resource.success(sendResult.getData()));
-
-                                // Update the message observer to ensure it triggers for the new message
-                                observeMessages(chatRoomId);  // This line ensures real-time updates resume after sending
                             } else {
                                 result.setValue(Resource.error(sendResult.getMessage(), null));
                             }
@@ -213,7 +130,6 @@ public class MessageViewModel extends ViewModel {
                     }
                 });
 
-        // Update the last message in the chat room
         chatRoomRepository.updateLastMessage(message);
         return result;
     }

@@ -121,7 +121,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
         }
 
         void bind(ChatRoom chatRoom,int count) {
-            String chatRoomNameText = chatRoom.isGroupChat() ? "Group Chat" : "Chat";
+            String chatRoomNameText = chatRoom.isGroupChat() ? "Group Chat: " : "Chat: ";
             chatRoomNameText = chatRoomNameText + chatRoom.getChatRoomName();
             chatRoomName.setText(chatRoomNameText);
             lastMessage.setText(chatRoom.getLastMessage());
