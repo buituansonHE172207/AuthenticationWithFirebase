@@ -1,6 +1,7 @@
 package com.kas.authenticationwithfirebase.ui.userProfile;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,6 +22,7 @@ import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.ui.auth.AuthViewModel;
 import com.kas.authenticationwithfirebase.ui.friend.FriendViewModel;
+import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
 import com.kas.authenticationwithfirebase.utility.CameraManager;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
@@ -35,6 +37,7 @@ import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import android.os.Environment;
 import android.widget.Toast;
@@ -42,6 +45,7 @@ import android.widget.Toast;
 @AndroidEntryPoint
 public class UserProfileActivity extends AppCompatActivity implements CameraManager.CamaraCallBack {
     private UserProfileViewModel userProfileViewModel;
+    private FriendViewModel friendViewModel;
     private AuthViewModel authViewModel;
     private CameraManager cameraManager;
     private ShapeableImageView updateAvatar;
@@ -95,6 +99,7 @@ public class UserProfileActivity extends AppCompatActivity implements CameraMana
         //viewModel
         userProfileViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+        friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
 
         //camera
         cameraManager = new CameraManager(this, this);
@@ -135,6 +140,26 @@ public class UserProfileActivity extends AppCompatActivity implements CameraMana
                     emailTextView.setText(userResource.getData().getUsername()); //fix later
                     statusTextView.setText(userResource.getData().getStatus());
                     username.setText(userResource.getData().getUsername());
+
+                    //add Friend
+                    friendViewModel.getFriendsList().observe(this, resource -> {
+                        if (resource != null && resource.getStatus() == Resource.Status.SUCCESS) {
+                            List<User> friendsList = resource.getData();
+
+                            if (friendsList != null) {
+                                boolean isFriend = friendsList.stream().anyMatch(friend -> userId.equals(friend.getUserId()));
+
+                                if (isFriend) {
+                                    btnAdd.setVisibility(View.GONE);
+                                    Log.d("UserProfileActivity", "User is a friend.");
+                                } else {
+                                    Log.d("UserProfileActivity", "User is not a friend.");
+                                }
+                            }
+                        } else if (resource != null && resource.getStatus() == Resource.Status.ERROR) {
+                            Log.e("UserProfileActivity", "Error fetching friends list: " + resource.getMessage());
+                        }
+                    });
                 }
             });//Hide fields
             pwdLayout.setVisibility(View.GONE);
@@ -178,6 +203,33 @@ public class UserProfileActivity extends AppCompatActivity implements CameraMana
 
             uploadAndUpdatePhoto();
             Toast.makeText(this, "Successfully", Toast.LENGTH_SHORT).show();
+        });
+        btnAdd.setOnClickListener(friend -> {
+            friendViewModel.addFriend(userId).observe(this, resource -> {
+                if (resource.getStatus() == Resource.Status.SUCCESS) {
+                    btnAdd.setVisibility(View.GONE);
+                    Toast.makeText(this, "Successfully", Toast.LENGTH_SHORT).show();
+                    // Show success message
+                } else if (resource.getStatus() == Resource.Status.ERROR) {
+                    // Show error message
+                } else if (resource.getStatus() == Resource.Status.LOADING) {
+                    // Show loading
+                }
+            });
+        });
+        chatBox.setOnClickListener(friend -> {
+            friendViewModel.createChatRoom(userId).observe(this, resource -> {
+                if (resource.getStatus() == Resource.Status.SUCCESS) {
+                    Intent intent = new Intent(this, MessageActivity.class);
+                    intent.putExtra("chatRoomId", resource.getData().getChatRoomId());
+                    intent.putExtra("chatRoomName", resource.getData().getChatRoomName());
+                    startActivity(intent);
+                } else if (resource.getStatus() == Resource.Status.ERROR) {
+                    // Handle error
+                } else if (resource.getStatus() == Resource.Status.LOADING) {
+                    // Show loading
+                }
+            });
         });
     }
 
