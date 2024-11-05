@@ -18,3 +18,4 @@ local.properties
 .idea/misc.xml
 .idea/runConfigurations.xml
 .idea/gradle.xml
+app/src/main/resources/clould_service_account.json
