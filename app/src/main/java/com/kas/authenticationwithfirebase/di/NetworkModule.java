@@ -18,6 +18,11 @@ public class NetworkModule {
 
     private static final String BASE_URL = "https://fcm.googleapis.com/";
 
+    @Provides
+    @Singleton
+    public static OkHttpClient provideOkHttpClient() {
+        return new OkHttpClient.Builder().build();
+    }
 
     @Provides
     @Singleton

@@ -8,8 +8,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.auth.FirebaseAuth;
+
 import com.kas.authenticationwithfirebase.data.entity.Message;
 import com.kas.authenticationwithfirebase.data.entity.User;
 import com.kas.authenticationwithfirebase.data.model.MessageWithUserDetail;
@@ -17,6 +16,7 @@ import com.kas.authenticationwithfirebase.data.repository.AuthRepository;
 import com.kas.authenticationwithfirebase.data.repository.ChatRoomRepository;
 import com.kas.authenticationwithfirebase.data.repository.CloudStorageRepository;
 import com.kas.authenticationwithfirebase.data.repository.MessageRepository;
+import com.kas.authenticationwithfirebase.data.repository.NotificationRepository;
 import com.kas.authenticationwithfirebase.data.repository.UserRepository;
 import com.kas.authenticationwithfirebase.service.FcmApi;
 import com.kas.authenticationwithfirebase.data.model.NotificationBody;
@@ -48,7 +48,7 @@ public class MessageViewModel extends ViewModel {
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
     private final CloudStorageRepository cloudStorageRepository;
-
+    private final NotificationRepository notificationRepository;
     private final MutableLiveData<Boolean> isSendingMessage = new MutableLiveData<>(false);
 
 
@@ -57,12 +57,14 @@ public class MessageViewModel extends ViewModel {
                             AuthRepository authRepository,
                             ChatRoomRepository chatRoomRepository,
                             UserRepository userRepository,
-                            CloudStorageRepository cloudStorageRepository) {
+                            CloudStorageRepository cloudStorageRepository,
+                            NotificationRepository notificationRepository) {
         this.messageRepository = messageRepository;
         this.currentUserId = authRepository.getCurrentUserId();
         this.chatRoomRepository = chatRoomRepository;
         this.userRepository = userRepository;
         this.cloudStorageRepository = cloudStorageRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public LiveData<Boolean> isSendingMessage() {
@@ -86,7 +88,17 @@ public class MessageViewModel extends ViewModel {
         result.observeForever(sendResult -> {
             if (sendResult.getStatus() == Resource.Status.SUCCESS) {
                 NotificationBody notificationBody = new NotificationBody("New message!", message.getMessageContent());
-                //notificationRepository.sendNotification(recipientToken, notificationBody, projectId);
+                // Get all tokens from chat room and send notification to each
+                chatRoomRepository.getChatRoomUserTokens(chatRoomId).observeForever(tokensResource -> {
+                    if (tokensResource.getStatus() == Resource.Status.SUCCESS) {
+                        List<String> tokens = tokensResource.getData();
+                        if (tokens != null) {
+                            for (String token : tokens) {
+                                notificationRepository.sendNotification(token, notificationBody);
+                            }
+                        }
+                    }
+                });
             }
         });
 

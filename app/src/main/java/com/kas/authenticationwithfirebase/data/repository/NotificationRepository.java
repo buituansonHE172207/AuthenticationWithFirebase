@@ -1,6 +1,7 @@
 package com.kas.authenticationwithfirebase.data.repository;
 
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -12,6 +13,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.Notification;
 import com.kas.authenticationwithfirebase.data.model.NotificationBody;
 import com.kas.authenticationwithfirebase.data.model.SendMessageDto;
@@ -20,12 +22,14 @@ import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -35,11 +39,13 @@ public class NotificationRepository {
     private final FcmApi fcmApi ;
     private final String projectId = "kas1407";
     private static final String MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
+    private final Context context;
 
     @Inject
-    public NotificationRepository(FirebaseDatabase firebaseDatabase, FcmApi fcmApi) {
+    public NotificationRepository(FirebaseDatabase firebaseDatabase, FcmApi fcmApi,@ApplicationContext Context context) {
         this.databaseReference = firebaseDatabase.getReference("notifications");
         this.fcmApi = fcmApi;
+        this.context = context;
     }
 
     public LiveData<Resource<Void>> addNotification(Notification notification) {
@@ -119,11 +125,13 @@ public class NotificationRepository {
     }
 
     private String getAccessToken() throws IOException {
-        GoogleCredentials googleCredentials = GoogleCredentials
-                .fromStream(new FileInputStream("clould_service_account.json"))
-                .createScoped(Arrays.asList(MESSAGING_SCOPE));
-        googleCredentials.refresh();
-        return googleCredentials.getAccessToken().getTokenValue();
+        try (InputStream serviceAccountStream = context.getResources().openRawResource(R.raw.clould_service_account)) {
+            GoogleCredentials googleCredentials = GoogleCredentials
+                    .fromStream(serviceAccountStream)
+                    .createScoped(Arrays.asList(MESSAGING_SCOPE));
+            googleCredentials.refresh();
+            return googleCredentials.getAccessToken().getTokenValue();
+        }
     }
 
     // Phương thức gửi notification qua FCM
