@@ -266,6 +266,48 @@ public class ChatRoomRepository {
         return result;
     }
 
+    //Get all tokens of users in a chat room
+    public LiveData<Resource<List<String>>> getChatRoomUserTokens(String chatRoomId) {
+        MutableLiveData<Resource<List<String>>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(null));
+
+        chatRoomsRef.child(chatRoomId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                ChatRoom chatRoom = snapshot.getValue(ChatRoom.class);
+                if (chatRoom != null) {
+                    List<String> userIds = chatRoom.getUserIds();
+                    List<String> userTokens = new ArrayList<>();
+
+                    for (String userId : userIds) {
+                        usersRef.document(userId).get()
+                                .addOnSuccessListener(documentSnapshot -> {
+                                    String token = documentSnapshot.getString("token");
+                                    if (token != null) {
+                                        userTokens.add(token);
+                                    }
+                                    if (userTokens.size() == userIds.size()) {
+                                        result.setValue(Resource.success(userTokens));
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    result.setValue(Resource.error("Failed to fetch user token: " + e.getMessage(), null));
+                                });
+                    }
+                } else {
+                    result.setValue(Resource.error("Chat room not found", null));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                result.setValue(Resource.error(error.getMessage(), null));
+            }
+        });
+
+        return result;
+    }
+
 
 
 }

@@ -1,5 +1,7 @@
 package com.kas.authenticationwithfirebase.service;
 
+import com.kas.authenticationwithfirebase.data.model.SendMessageDto;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Header;
@@ -14,8 +16,4 @@ public interface FcmApi {
             @Body SendMessageDto body
     );
 
-//    @POST("/broadcast")
-//    Call<Void> broadcast(
-//            @Body SendMessageDto body
-//    );
 }

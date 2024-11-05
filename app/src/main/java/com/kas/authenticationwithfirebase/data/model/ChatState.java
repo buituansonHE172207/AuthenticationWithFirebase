@@ -1,4 +1,4 @@
-package com.kas.authenticationwithfirebase.service;
+package com.kas.authenticationwithfirebase.data.model;
 
 public class ChatState {
     private boolean isEnteringToken;

@@ -6,25 +6,40 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.kas.authenticationwithfirebase.data.entity.Notification;
+import com.kas.authenticationwithfirebase.data.model.NotificationBody;
+import com.kas.authenticationwithfirebase.data.model.SendMessageDto;
+import com.kas.authenticationwithfirebase.service.FcmApi;
 import com.kas.authenticationwithfirebase.utility.Resource;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class NotificationRepository {
     private final DatabaseReference databaseReference;
+    private final FcmApi fcmApi ;
+    private final String projectId = "kas1407";
+    private static final String MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 
     @Inject
-    public NotificationRepository(FirebaseDatabase firebaseDatabase) {
+    public NotificationRepository(FirebaseDatabase firebaseDatabase, FcmApi fcmApi) {
         this.databaseReference = firebaseDatabase.getReference("notifications");
+        this.fcmApi = fcmApi;
     }
 
     public LiveData<Resource<Void>> addNotification(Notification notification) {
@@ -101,6 +116,51 @@ public class NotificationRepository {
                 });
 
         return hasNotificationsLiveData;
+    }
+
+    private String getAccessToken() throws IOException {
+        GoogleCredentials googleCredentials = GoogleCredentials
+                .fromStream(new FileInputStream("clould_service_account.json"))
+                .createScoped(Arrays.asList(MESSAGING_SCOPE));
+        googleCredentials.refresh();
+        return googleCredentials.getAccessToken().getTokenValue();
+    }
+
+    // Phương thức gửi notification qua FCM
+    public void sendNotification(String recipientToken, NotificationBody notificationBody) {
+        new Thread(() -> {
+            String token;
+            try {
+                token = getAccessToken();
+            } catch (IOException e) {
+                Log.e("NotificationRepository", "Failed to get access token: " + e.getMessage());
+                return;
+            }
+
+            String authToken = "Bearer " + token;
+            SendMessageDto sendMessageDto = new SendMessageDto(recipientToken, notificationBody);
+
+            fcmApi.sendMessage(authToken, projectId, sendMessageDto).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Log.d("NotificationRepository", "Notification sent successfully!");
+                    } else {
+                        try {
+                            String errorResponse = response.errorBody().string();
+                            Log.e("NotificationRepository", "Failed to send notification: " + errorResponse);
+                        } catch (IOException e) {
+                            Log.e("NotificationRepository", "Failed to read error response: " + e.getMessage());
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.e("NotificationRepository", "Error sending notification: " + t.getMessage());
+                }
+            });
+        }).start();
     }
 
 }

@@ -33,7 +33,7 @@ public class AuthRepository {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         String userId = firebaseAuth.getCurrentUser().getUid();
-                        User newUser = new User(userId, email, "", "", "", 0, "");
+                        User newUser = new User(userId, email, email, "", "", 0, "");
 
                         firebaseFirestore.collection(USERS_COLLECTION)
                                 .document(userId)
