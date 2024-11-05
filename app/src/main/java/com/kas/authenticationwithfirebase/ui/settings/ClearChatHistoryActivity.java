@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,13 +13,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.kas.authenticationwithfirebase.R;
 import com.kas.authenticationwithfirebase.data.entity.ChatRoom;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewModel;
 import com.kas.authenticationwithfirebase.ui.message.MessageViewModel;
 import com.kas.authenticationwithfirebase.utility.Resource;
+
 import java.util.List;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -83,8 +87,15 @@ public class ClearChatHistoryActivity extends AppCompatActivity {
                         // Proceed with deleting messages after confirmation
                         messageViewModel.deleteMessages(chatRoom.getChatRoomId()).observe(this, deleteResult -> {
                             if (deleteResult.getStatus() == Resource.Status.SUCCESS) {
-                                Toast.makeText(this, "Messages in chat room cleared successfully", Toast.LENGTH_SHORT).show();
-                                refreshChatRooms();
+                                // Proceed to delete the chat room if message deletion is successful
+                                chatRoomViewModel.deleteChatRoom(chatRoom.getChatRoomId()).observe(this, deleteRoomResult -> {
+                                    if (deleteRoomResult.getStatus() == Resource.Status.SUCCESS) {
+                                        refreshChatRooms();
+                                        Toast.makeText(this, "Chat room and messages cleared successfully", Toast.LENGTH_SHORT).show();
+                                    } else if (deleteRoomResult.getStatus() == Resource.Status.ERROR) {
+                                        Toast.makeText(this, "Failed to delete chat room: " + deleteRoomResult.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             } else if (deleteResult.getStatus() == Resource.Status.ERROR) {
                                 Toast.makeText(this, "Failed to clear messages: " + deleteResult.getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -110,6 +121,7 @@ public class ClearChatHistoryActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
