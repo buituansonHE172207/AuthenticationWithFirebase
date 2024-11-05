@@ -1,6 +1,7 @@
 package com.kas.authenticationwithfirebase.ui.login;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -31,16 +33,21 @@ public class LoginActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button loginButton;
-    private TextView signUpTextView,fogotPasswordTextView,notice;
+    private TextView signUpTextView, fogotPasswordTextView, notice;
     private AuthViewModel viewModel;
     private ImageButton backButton;
+    private SharedPreferences sharedPreferences;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Load current theme setting
+        sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE);
+        boolean isDarkMode = sharedPreferences.getBoolean("dark_mode", false);
+        AppCompatDelegate.setDefaultNightMode(isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
@@ -54,7 +61,8 @@ public class LoginActivity extends AppCompatActivity {
 
         TextWatcher textWatcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -107,6 +115,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
         });
     }
+
     private void checkFieldsForEmptyValues() {
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
@@ -122,14 +131,15 @@ public class LoginActivity extends AppCompatActivity {
 
         }
     }
-    private void displayLoadingButton(Boolean isLoading){
-        if (isLoading){
+
+    private void displayLoadingButton(Boolean isLoading) {
+        if (isLoading) {
             // Disable the login button and set "Logging in" text and color
             loginButton.setEnabled(false);
             loginButton.setText("Logging in...");
             loginButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.disabled_button)); // Gray background
             loginButton.setTextColor(ContextCompat.getColorStateList(this, R.color.menu_item_gray));
-        } else{
+        } else {
             // Reset the button state after login attempt is complete
             loginButton.setEnabled(true);
             loginButton.setText("Login");
@@ -137,6 +147,7 @@ public class LoginActivity extends AppCompatActivity {
             loginButton.setTextColor(ContextCompat.getColorStateList(this, R.color.white));
         }
     }
+
     private void displayNotice(String message, String messageType) {
         notice.setText(message);
 

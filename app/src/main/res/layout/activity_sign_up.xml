@@ -20,7 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/baseline_arrow_back_24" />
+            android:src="@drawable/baseline_arrow_back_24"
+            app:tint="@color/top_nav_chat_text_color"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -45,7 +46,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/imageView"
             app:layout_constraintStart_toStartOf="@+id/imageView"
-            app:srcCompat="@drawable/icon" />
+            app:srcCompat="@drawable/icon"
+            app:tint="@color/text_color"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -59,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:text="Sign up with Email"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color"
             android:textSize="18dp"
             android:textStyle="bold" />
 
@@ -78,18 +80,6 @@
         android:gravity="start"
         android:orientation="vertical"
         android:paddingHorizontal="36dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Your name"
-            android:textColor="@color/primary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/nameEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

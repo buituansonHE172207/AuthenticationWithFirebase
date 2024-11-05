@@ -96,25 +96,13 @@
 
         </com.google.android.material.appbar.MaterialToolbar>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/dropdownLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <!-- Bạn bè sẽ được thêm vào đây -->
-        </androidx.recyclerview.widget.RecyclerView>
-
-        <!-- Chat List Section -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvChatRooms"
+        <!-- activity_main.xml -->
+        <FrameLayout
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@drawable/rounded_corners"
-            android:backgroundTint="@color/background"
-            android:paddingStart="8dp"
-            android:paddingTop="23dp"
-            android:paddingEnd="8dp" />
+            android:layout_weight="1"/>
+
         <!-- Bottom Navigation Bar -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"

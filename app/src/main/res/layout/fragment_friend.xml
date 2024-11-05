@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.main.MainFragment"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/text_color"
+        android:orientation="vertical">
+
+        <!-- Search Bar -->
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:iconifiedByDefault="false"
+            android:background="@color/background"
+            android:queryHint="Search friends" />
+
+        <!-- Progress Bar for Loading -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <!-- ViewSwitcher to toggle between friend list and search results -->
+        <ViewSwitcher
+            android:id="@+id/view_switcher"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/search_view">
+
+            <!-- RecyclerView for Friend List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_friends"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:background="@color/background"
+                android:scrollbars="vertical" />
+
+            <!-- RecyclerView for Search Results -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_search_results"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:background="@color/background"
+                android:scrollbars="vertical" />
+        </ViewSwitcher>
+
+    </LinearLayout>
+
+</LinearLayout>

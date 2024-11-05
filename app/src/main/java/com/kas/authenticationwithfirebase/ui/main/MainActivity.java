@@ -25,6 +25,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,6 +49,7 @@ import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomAdapter;
 import com.kas.authenticationwithfirebase.ui.chatRoom.ChatRoomViewModel;
 import com.kas.authenticationwithfirebase.ui.friend.FriendActivity;
 import com.kas.authenticationwithfirebase.ui.friend.FriendAdapter;
+import com.kas.authenticationwithfirebase.ui.friend.FriendFragment;
 import com.kas.authenticationwithfirebase.ui.friend.FriendViewModel;
 import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
 import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
@@ -62,17 +66,12 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
-    private ChatRoomViewModel chatRoomViewModel;
-    private RecyclerView rvChatRooms;
     private BottomNavigationView bottomNavigationView;
-    private RecyclerView dropdownLayout;
     private ImageButton profileIcon;
     private AuthViewModel authViewModel;
-    private FriendViewModel friendViewModel;
     private UserProfileViewModel userViewModel;
     private SharedPreferences sharedPreferences;
-    private MainFriendAdapter friendAdapter;
-    private ChatRoomAdapter chatRoomAdapter;
+
     private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,30 +91,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        rvChatRooms = findViewById(R.id.rvChatRooms);
         profileIcon = findViewById(R.id.profile_icon);
-        chatRoomViewModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
-
-        chatRoomAdapter = new ChatRoomAdapter();
-
-        // Initialize FriendAdapter
-        friendAdapter = new MainFriendAdapter();
-        friendAdapter.setOnFriendClickListener(friend -> {
-            // Handle friend click (if needed)
-            friendViewModel.createChatRoom(friend.getUserId()).observe(this, resource -> {
-                if (resource.getStatus() == Resource.Status.SUCCESS) {
-                    Intent intent = new Intent(MainActivity.this, MessageActivity.class);
-                    intent.putExtra("chatRoomId", resource.getData().getChatRoomId());
-                    intent.putExtra("chatRoomName", resource.getData().getChatRoomName());
-                    startActivity(intent);
-                } else if (resource.getStatus() == Resource.Status.ERROR) {
-                    // Handle error
-                } else if (resource.getStatus() == Resource.Status.LOADING) {
-                    // Show loading
-                }
-            });
-        });
 
         userViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
         userViewModel.getUserProfile().observe(this, resource -> {
@@ -133,36 +110,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        rvChatRooms.setAdapter(chatRoomAdapter);
-        rvChatRooms.setLayoutManager(new LinearLayoutManager(this));
-
-        // Observe chat rooms
-        chatRoomViewModel.getChatRooms().observe(this, resource -> {
-            if (resource.getStatus() == Resource.Status.SUCCESS) {
-                chatRoomAdapter.setChatRooms(resource.getData());
-                // Observe unread message count for each chat room
-                for (ChatRoom chatRoom : resource.getData()) {
-                    chatRoomViewModel.getUnreadMessagesCount(chatRoom.getChatRoomId()).observe(this, unreadResource -> {
-                        if (unreadResource.getStatus() == Resource.Status.SUCCESS) {
-                            chatRoomAdapter.updateUnreadCount(chatRoom.getChatRoomId(), unreadResource.getData());
-                        }
-                    });
-                }
-            } else if (resource.getStatus() == Resource.Status.ERROR) {
-                // Handle error
-            } else if (resource.getStatus() == Resource.Status.LOADING) {
-                // Show loading
-            }
-        });
-
-        // Open MessageActivity when a chat room is clicked
-        chatRoomAdapter.setOnChatRoomClickListener(chatRoom -> {
-            Intent intent = new Intent(MainActivity.this, MessageActivity.class);
-            intent.putExtra("chatRoomId", chatRoom.getChatRoomId());
-            intent.putExtra("chatRoomName", chatRoom.getChatRoomName());
-            startActivity(intent);
-        });
-
         // Initialize Bottom Navigation View
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         // Set default highlighted item in Bottom Navigation
@@ -172,15 +119,20 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.profile) {
                 //chatRoomViewModel.createChatRoom("81gHkQDfPbaifFqw4wz7HBweL8O2");
+
                 Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
                 startActivity(intent);
                 return true;
             } else if (item.getItemId() == R.id.message) {
+                displayFragment(new MainFragment());
                 return true;
             } else if (item.getItemId() == R.id.contact) {
+                displayFragment(new FriendFragment());
+                /*
                 // Open friends activity
                 Intent intent = new Intent(MainActivity.this, FriendActivity.class);
                 startActivity(intent);
+                */
                 return true;
             } else if (item.getItemId() == R.id.settings) {
                 // Handle settings action, e.g., open settings activity
@@ -193,19 +145,12 @@ public class MainActivity extends AppCompatActivity {
 
         profileIcon.setOnClickListener(this::showPopupMenu);
 
-
-        //load list friends
-        dropdownLayout = findViewById(R.id.dropdownLayout);
-        // Khởi tạo ViewModel
-        friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
-
-        // Quan sát danh sách bạn bè và hiển thị
-        friendViewModel.getFriendsList().observe(this, resource -> {
-            if (resource.getStatus() == Resource.Status.SUCCESS && resource.getData() != null) {
-               populateFriendList(resource.getData());
-            }
-        });
         getFCMToken();
+        // Display MainFragment
+
+        if (savedInstanceState == null) {
+            displayFragment(new MainFragment());
+        }
     }
 
     private void getFCMToken() {
@@ -282,39 +227,10 @@ public class MainActivity extends AppCompatActivity {
         // Show the popup menu
         menuPopupHelper.show();
     }
-
-    private void setupFriendDropdown() {
-        dropdownLayout.removeAllViews();  // Clear old views
-        RecyclerView friendRecyclerView = new RecyclerView(this);
-        friendRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        friendRecyclerView.setAdapter(friendAdapter);
-        dropdownLayout.addView(friendRecyclerView);  // Add RecyclerView to dropdown layout
-    }
-    private void populateFriendList(List<User> friendsList) {
-        // Check if dropdownLayout is a RecyclerView, you might want to cast it
-        // dropdownLayout.setVisibility(View.VISIBLE); // Optionally show the layout
-
-        // Remove all views in dropdownLayout
-        dropdownLayout.removeAllViews();
-
-        // Initialize LayoutManager for dropdownLayout
-        LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        dropdownLayout.setLayoutManager(horizontalLayoutManager);
-
-        // Set the adapter to dropdownLayout
-        friendAdapter.setFriendList(friendsList);
-        dropdownLayout.setAdapter(friendAdapter);
-
-        // You might want to show the dropdownLayout after setting the adapter
-        dropdownLayout.setVisibility(View.VISIBLE);
-
-        // Set the click listener for view friend profile
-        /*
-        friendAdapter.setOnFriendClickListener(friend -> {
-            Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
-            intent.putExtra("friendId", friend.getUserId());
-            startActivity(intent);
-        });
-        */
+    private void displayFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.commit();
     }
 }

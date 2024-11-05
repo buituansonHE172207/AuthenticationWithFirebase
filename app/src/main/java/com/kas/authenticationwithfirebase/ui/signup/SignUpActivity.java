@@ -1,6 +1,7 @@
 package com.kas.authenticationwithfirebase.ui.signup;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -26,18 +28,24 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class SignUpActivity extends AppCompatActivity {
 
     private AuthViewModel authViewModel;
-    private EditText nameEditText, emailEditText, passwordEditText, confirmPasswordEditText;
+    private EditText emailEditText, passwordEditText, confirmPasswordEditText;
     private TextView notice;
     private Button signUpButton;
     private ImageButton backButton;
+    private SharedPreferences sharedPreferences;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Load current theme setting
+        sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE);
+        boolean isDarkMode = sharedPreferences.getBoolean("dark_mode", false);
+        AppCompatDelegate.setDefaultNightMode(isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        nameEditText = findViewById(R.id.nameEditText);
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText);
@@ -63,7 +71,6 @@ public class SignUpActivity extends AppCompatActivity {
         };
 
         // Add TextWatcher to each EditText
-        nameEditText.addTextChangedListener(textWatcher);
         emailEditText.addTextChangedListener(textWatcher);
         passwordEditText.addTextChangedListener(textWatcher);
         confirmPasswordEditText.addTextChangedListener(textWatcher);
@@ -100,13 +107,12 @@ public class SignUpActivity extends AppCompatActivity {
     }
     // Check if all fields are non-empty
     private void checkFieldsForEmptyValues() {
-        String name = nameEditText.getText().toString().trim();
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
         String confirmPassword = confirmPasswordEditText.getText().toString().trim();
 
         // Enable button if all fields are filled
-        if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty() && !confirmPassword.isEmpty()) {
+        if (!email.isEmpty() && !password.isEmpty() && !confirmPassword.isEmpty()) {
             signUpButton.setEnabled(true);
             signUpButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary)); // enabled color
             signUpButton.setTextColor(ContextCompat.getColorStateList(this, R.color.white));
