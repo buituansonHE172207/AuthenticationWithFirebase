@@ -113,7 +113,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             friendNameTextView.setText(friend.getUsername());
             //friendEmailTextView.setText(friend.getEmail());
             friendEmailTextView.setText("Email: " + "mockupemail@gmail.com");
-            Log.d("friendStatus",friend.getEmail());
+            //Log.d("friendStatus",friend.getEmail());
             friendStatusTextView.setText(friend.getStatus());
 
             if ("ONLINE".equalsIgnoreCase(friend.getStatus())) {
