@@ -266,6 +266,53 @@ public class ChatRoomRepository {
         return result;
     }
 
+    //Get all tokens of users in a chat room
+    public LiveData<Resource<List<String>>> getChatRoomUserTokens(String chatRoomId) {
+        MutableLiveData<Resource<List<String>>> result = new MutableLiveData<>();
+        result.setValue(Resource.loading(null));
+
+        // Lấy thông tin phòng chat từ Firebase Realtime Database
+        chatRoomsRef.child(chatRoomId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                ChatRoom chatRoom = snapshot.getValue(ChatRoom.class);
+                if (chatRoom != null) {
+                    fetchUserTokens(chatRoom.getUserIds(), result);
+                } else {
+                    result.setValue(Resource.error("Chat room not found", null));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                result.setValue(Resource.error(error.getMessage(), null));
+            }
+        });
+
+        return result;
+    }
+
+    // Phương thức riêng để lấy token của từng userId từ Firestore
+    private void fetchUserTokens(List<String> userIds, MutableLiveData<Resource<List<String>>> result) {
+        List<String> userTokens = new ArrayList<>();
+        for (String userId : userIds) {
+            usersRef.document(userId).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        String token = documentSnapshot.getString("token");
+                        if (token != null) {
+                            userTokens.add(token);
+                        }
+                        // Khi tất cả token được lấy, cập nhật giá trị
+                        if (userTokens.size() == userIds.size()) {
+                            result.setValue(Resource.success(userTokens));
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        result.setValue(Resource.error("Failed to fetch user token: " + e.getMessage(), null));
+                    });
+        }
+    }
+
 
 
 }
