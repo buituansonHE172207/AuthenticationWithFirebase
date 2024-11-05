@@ -52,7 +52,7 @@ public class SettingsFragment extends Fragment {
         // Set up click listeners for each settings option
         view.findViewById(R.id.chat_option).setOnClickListener(v -> openAppearanceSettings());
         view.findViewById(R.id.storage_data_option).setOnClickListener(v -> openStorageDataSettings());
-        // view.findViewById(R.id.link_privacy).setOnClickListener(v -> openPrivacySettings());
+         view.findViewById(R.id.notifications_option).setOnClickListener(v -> openNotificationSettings());
     }
 
     private void setupToolbar(Toolbar toolbar) {
@@ -77,6 +77,9 @@ public class SettingsFragment extends Fragment {
 
     private void openStorageDataSettings() {
         startActivity(new Intent(getActivity(), StorageAndDataActivity.class));
+    }
+    private void openNotificationSettings() {
+        startActivity(new Intent(getActivity(), NotificationSettingsActivity.class));
     }
 
     // Handle back button in the toolbar
