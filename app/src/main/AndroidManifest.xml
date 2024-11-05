@@ -2,16 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-
-
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <queries>
         <intent>
@@ -44,24 +41,24 @@
         android:theme="@style/Theme.AuthenticationWithFirebase"
         tools:targetApi="31">
         <activity
+            android:name=".ui.settings.NotificationSettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.settings.ClearChatHistoryActivity"
             android:exported="false" />
         <activity
             android:name=".ui.settings.StorageAndDataActivity"
-            android:exported="false" />
-
-<!--        <service-->
-<!--            android:name=".service.MyFirebaseMessagingService"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true" />-->
+            android:exported="false" /> <!-- <service -->
+        <!-- android:name=".service.MyFirebaseMessagingService" -->
+        <!-- android:enabled="true" -->
+        <!-- android:exported="true" /> -->
         <service
             android:name=".service.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
 
         <activity
             android:name=".ui.friend.FriendActivity"
