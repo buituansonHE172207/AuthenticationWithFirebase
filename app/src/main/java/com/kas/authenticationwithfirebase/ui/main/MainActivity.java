@@ -54,6 +54,7 @@ import com.kas.authenticationwithfirebase.ui.friend.FriendViewModel;
 import com.kas.authenticationwithfirebase.ui.login.LoginActivity;
 import com.kas.authenticationwithfirebase.ui.message.MessageActivity;
 import com.kas.authenticationwithfirebase.ui.settings.SettingsActivity;
+import com.kas.authenticationwithfirebase.ui.settings.SettingsFragment;
 import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileActivity;
 import com.kas.authenticationwithfirebase.ui.userProfile.UserProfileViewModel;
 import com.kas.authenticationwithfirebase.utility.Resource;
@@ -71,8 +72,10 @@ public class MainActivity extends AppCompatActivity {
     private AuthViewModel authViewModel;
     private UserProfileViewModel userViewModel;
     private SharedPreferences sharedPreferences;
+    private TextView toolbarTitle;
 
     private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE);
@@ -124,10 +127,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             } else if (item.getItemId() == R.id.message) {
-                displayFragment(new MainFragment());
+                displayFragment(new MainFragment(),"Home");
                 return true;
             } else if (item.getItemId() == R.id.contact) {
-                displayFragment(new FriendFragment());
+                displayFragment(new FriendFragment(), "Contacts");
                 /*
                 // Open friends activity
                 Intent intent = new Intent(MainActivity.this, FriendActivity.class);
@@ -136,8 +139,10 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (item.getItemId() == R.id.settings) {
                 // Handle settings action, e.g., open settings activity
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
+                /*Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);*/
+                displayFragment(new SettingsFragment(), "Settings");
+
                 return true;
             }
             return false;
@@ -147,22 +152,22 @@ public class MainActivity extends AppCompatActivity {
 
         getFCMToken();
         // Display MainFragment
-
+        toolbarTitle = findViewById(R.id.toolbar_title);
         if (savedInstanceState == null) {
-            displayFragment(new MainFragment());
+            displayFragment(new MainFragment(), "Home");
         }
     }
 
     private void getFCMToken() {
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
+            if (task.isSuccessful()) {
                 String token = task.getResult();
                 Log.d("token", token);
                 String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-                Log.d("uid",uid);
+                Log.d("uid", uid);
                 FirebaseFirestore.getInstance().collection("users")
                         .document(uid)
-                        .update("token",token)
+                        .update("token", token)
                         .addOnSuccessListener(aVoid -> Log.d("TokenUpdate", "Token updated successfully in Firestore"))
                         .addOnFailureListener(e -> Log.d("TokenUpdate", "Failed to update token", e));
 
@@ -191,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                     FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
+                            if (task.isSuccessful()) {
                                 authViewModel.logoutUser();
                                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -207,8 +212,10 @@ public class MainActivity extends AppCompatActivity {
 //                    finish();
                     return true;
                 } else if (itemId == R.id.btnSettings) {
-                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                    startActivity(intent);
+                    /*Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent);*/
+                    displayFragment(new SettingsFragment(),"Settings");
+
                     return true;
                 } else if (itemId == R.id.btnProfile) {
                     Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
@@ -227,10 +234,12 @@ public class MainActivity extends AppCompatActivity {
         // Show the popup menu
         menuPopupHelper.show();
     }
-    private void displayFragment(Fragment fragment) {
+
+    private void displayFragment(Fragment fragment, String title) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
+        toolbarTitle.setText(title);
     }
 }
