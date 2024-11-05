@@ -112,7 +112,7 @@ public class MainFragment extends Fragment {
 
         friendAdapter.setOnFriendClickListener(friend -> {
             Intent intent = new Intent(requireActivity(), UserProfileActivity.class);
-            intent.putExtra("friendId", friend.getUserId());
+            intent.putExtra("userId", friend.getUserId());
             startActivity(intent);
         });
     }
