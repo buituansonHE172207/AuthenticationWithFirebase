@@ -99,7 +99,7 @@ public class FriendFragment extends Fragment {
 
     private void observeFriend() {
         // Observe the list of friends
-        friendViewModel.getFriendsList().observe(this, resource -> {
+        friendViewModel.getFriendsList().observe(requireActivity(), resource -> {
             if (resource.getStatus() == Resource.Status.SUCCESS) {
                 friendAdapter.updateFriendList(resource.getData());
                 progressBar.setVisibility(View.GONE);
