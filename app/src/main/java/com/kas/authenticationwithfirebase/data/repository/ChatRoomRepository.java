@@ -21,6 +21,7 @@ import com.kas.authenticationwithfirebase.utility.Resource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,7 +159,7 @@ public class ChatRoomRepository {
         result.setValue(Resource.loading(null));
 
         removeChatRoomsListener();
-        chatRoomsListener = chatRoomsRef.addValueEventListener(new ValueEventListener() {
+        chatRoomsListener = chatRoomsRef.orderByChild("lastMessageTimestamp").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 List<ChatRoom> userChatRooms = new ArrayList<>();
@@ -172,6 +173,7 @@ public class ChatRoomRepository {
                         userChatRooms.add(chatRoom);
                     }
                 }
+                Collections.reverse(userChatRooms);
                 result.setValue(Resource.success(userChatRooms));
             }
 
