@@ -2,6 +2,7 @@ package com.kas.authenticationwithfirebase.ui.friend;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -81,7 +82,6 @@ public class FriendActivity extends AppCompatActivity {
             });
         });
         searchAdapter.setOnFriendClickListener(friend -> {
-            // Add friend
             friendViewModel.addFriend(friend.getUserId()).observe(this, resource -> {
                 if (resource.getStatus() == Resource.Status.SUCCESS) {
                     // Show success message
@@ -171,6 +171,7 @@ public class FriendActivity extends AppCompatActivity {
     // Perform search and update the UI
     private void performSearch(String query) {
         showSearchResults();
+        friendViewModel.searchFriends(query).removeObservers(this);
         friendViewModel.searchFriends(query).observe(this, resource -> {
             if (resource.getStatus() == Resource.Status.SUCCESS) {
                 searchAdapter.updateFriendList(resource.getData());

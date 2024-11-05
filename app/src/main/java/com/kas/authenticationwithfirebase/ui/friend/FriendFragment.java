@@ -135,16 +135,19 @@ public class FriendFragment extends Fragment {
         });
 
         searchAdapter.setOnFriendClickListener(friend -> {
-            friendViewModel.addFriend(friend.getUserId()).observe(getViewLifecycleOwner(), resource -> {
-                if (resource.getStatus() == Resource.Status.SUCCESS) {
-                    // Show success message
-                    friendViewModel.getFriendsList();
-                } else if (resource.getStatus() == Resource.Status.ERROR) {
-                    // Show error message
-                } else if (resource.getStatus() == Resource.Status.LOADING) {
-                    // Show loading
-                }
-            });
+//            friendViewModel.addFriend(friend.getUserId()).observe(getViewLifecycleOwner(), resource -> {
+//                if (resource.getStatus() == Resource.Status.SUCCESS) {
+//                    // Show success message
+//                    friendViewModel.getFriendsList();
+//                } else if (resource.getStatus() == Resource.Status.ERROR) {
+//                    // Show error message
+//                } else if (resource.getStatus() == Resource.Status.LOADING) {
+//                    // Show loading
+//                }
+//            });
+            Intent intent = new Intent(getActivity(), UserProfileActivity.class);
+            intent.putExtra("userId", friend.getUserId());
+            startActivity(intent);
         });
         searchAdapter.setOnFriendButtonClickListener(friend -> {
             friendViewModel.createChatRoom(friend.getUserId()).observe(getViewLifecycleOwner(), resource -> {
